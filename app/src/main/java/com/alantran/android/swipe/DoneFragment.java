@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class DoneFragment extends Fragment {
+public class DoneFragment extends Fragment implements AllClassesFragment.OnDoneButtonClick {
 
     String LOG_TAG = DoneFragment.class.getSimpleName();
 
@@ -25,6 +25,11 @@ public class DoneFragment extends Fragment {
 
     public DoneFragment() {
         // Required empty public constructor
+        super();
+    }
+
+    public ArrayAdapter<String> getmClassAdapter(){
+        return mClassAdapter;
     }
 
 
@@ -68,4 +73,9 @@ public class DoneFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onAddingItemToList(String description) {
+        mClassAdapter.add(description);
+        mClassAdapter.notifyDataSetChanged();
+    }
 }

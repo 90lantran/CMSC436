@@ -1,15 +1,21 @@
 package com.alantran.android.swipe;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,30 +41,30 @@ public class AllClassesFragment extends Fragment {
 
     CustomAdapter mClassAdapter;
 
-    OnButtonClick mCallback;
+    OnDoneButtonClick mCallback;
 
     public AllClassesFragment() {
         // Required empty public constructor
     }
 
 
-
-    public interface OnButtonClick {
-        public void onAddingItemToList(int position);
+    public interface OnDoneButtonClick {
+        public void onAddingItemToList(String description);
     }
 
-//    @Override
-//    public void onAttach(Activity activity) {
-//
-//        // This makes sure that the container activity has implemented
-//        // the callback interface. If not, it throws an exception
-//        try {
-//            mCallback = (OnButtonClick) activity;
-//        } catch (ClassCastException e) {
-//            throw new ClassCastException(activity.toString()
-//                    + " must implement OnHeadlineSelectedListener");
-//        }
-//    }
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            mCallback = (OnDoneButtonClick) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
 
 
     @Override
@@ -83,18 +89,10 @@ public class AllClassesFragment extends Fragment {
 
         List<String> classes = new ArrayList<String>(Arrays.asList(data));
 
-        mClassAdapter = new CustomAdapter(getContext(),classes);
+        mClassAdapter = new CustomAdapter(getContext(), classes);
 
         ListView mListView = (ListView) rootView.findViewById(R.id.listview_class);
-//        Button pick = (Button)mListView.findViewById(R.id.pick_button);
-//
-//        pick.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Snackbar.make(container, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+
 
         mListView.setAdapter(mClassAdapter);
 
@@ -104,6 +102,56 @@ public class AllClassesFragment extends Fragment {
 
     }
 
+    public class CustomAdapter extends ArrayAdapter<String> {
+
+        public CustomAdapter(Context context, List<String> listItemModel){
+            super(context, 0, listItemModel);
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final String listItemModel = getItem(position);
+
+            if(convertView == null){
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_class_1,parent,false);
+
+            }
+
+            final TextView description = (TextView) convertView.findViewById(R.id.list_item_class_textview);
+            description.setText(listItemModel);
+            Button removed = (Button) convertView.findViewById(R.id.remove_button);
+            Button pick = (Button) convertView.findViewById(R.id.pick_button);
+            final View finalConvertView = convertView;
+            removed.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                    Log.e(LOG_TAG,"mCallBack is NULL");
+                    mCallback.onAddingItemToList(listItemModel);
+
+                }
+            });
+
+            pick.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                }
+            });
+
+            return convertView;
+        }
+
+
+    }
+
+
+
     public class FetchClassesTask extends AsyncTask<String, Void, String[]> {
 
         private String[] getClassDataFromJson(String classJsonStr)
@@ -111,33 +159,32 @@ public class AllClassesFragment extends Fragment {
             String COURSEID = "course_id";
             String NAME = "name";
             String DEPARTMENT = "department";
-            String SEMESTER ="semester";
-            String CREDITS ="credits";
-            String GRADINGMETHOD ="grading_method";
-            String CORE ="core";
-            String GENED ="gen_ed";
-            String DESCRIPTION ="description";
-            String RELATIONSHIPS ="relationships";
+            String SEMESTER = "semester";
+            String CREDITS = "credits";
+            String GRADINGMETHOD = "grading_method";
+            String CORE = "core";
+            String GENED = "gen_ed";
+            String DESCRIPTION = "description";
+            String RELATIONSHIPS = "relationships";
             String SECTIONS = "sections";
 
 
             JSONArray classArray = new JSONArray(classJsonStr);
             String[] results = new String[classArray.length()];
 
-            for (int i = 0; i < classArray.length(); i++){
+            for (int i = 0; i < classArray.length(); i++) {
                 String name;
                 String courseID;
                 String description;
 
                 JSONObject klass = classArray.getJSONObject(i);
-                results[i] = klass.getString(COURSEID) + ": " + klass.getString(NAME)+ "\n";
+                results[i] = klass.getString(COURSEID) + ": " + klass.getString(NAME) + "\n";
                 results[i] = results[i] + klass.getString(DESCRIPTION);
                 Log.i(LOG_TAG, results[i]);
 
             }
 
             return results;
-
 
 
         }
@@ -189,9 +236,9 @@ public class AllClassesFragment extends Fragment {
                 classJsonStr = buffer.toString();
                 Log.i(LOG_TAG, classJsonStr);
 
-            } catch (IOException e){
-                Log.e(LOG_TAG,"Error", e);
-            }finally {
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error", e);
+            } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
@@ -207,7 +254,7 @@ public class AllClassesFragment extends Fragment {
             try {
                 return getClassDataFromJson(classJsonStr);
             } catch (JSONException e) {
-                Log.e(LOG_TAG,e.getMessage(),e);
+                Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
 
