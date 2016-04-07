@@ -21,16 +21,13 @@ public class DoneFragment extends Fragment implements AllClassesFragment.OnDoneB
 
     String LOG_TAG = DoneFragment.class.getSimpleName();
 
-    ArrayAdapter<String> mClassAdapter;
-
+    ArrayAdapter<String> mClassAdapter ;
+    List<String> classes;
     public DoneFragment() {
         // Required empty public constructor
         super();
     }
 
-    public ArrayAdapter<String> getmClassAdapter(){
-        return mClassAdapter;
-    }
 
 
     @Override
@@ -54,7 +51,7 @@ public class DoneFragment extends Fragment implements AllClassesFragment.OnDoneB
 
         };
 
-        List<String> classes = new ArrayList<String>(Arrays.asList(data));
+        classes = new ArrayList<String>(Arrays.asList(data));
 
         mClassAdapter = new ArrayAdapter<String>(
                 getActivity(),
@@ -75,6 +72,12 @@ public class DoneFragment extends Fragment implements AllClassesFragment.OnDoneB
 
     @Override
     public void onAddingItemToList(String description) {
+        mClassAdapter = new ArrayAdapter<String>(
+                getActivity(),
+                R.layout.list_item_done,
+                R.id.list_item_done_textview,
+                classes
+        );
         mClassAdapter.add(description);
         mClassAdapter.notifyDataSetChanged();
     }

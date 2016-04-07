@@ -91,7 +91,11 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
     @Override
     public void onAddingItemToList(String description) {
-        Log.e(LOG_TAG,description);
+        Log.e(LOG_TAG, description);
+        DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
+        if (f == null) Log.e(LOG_TAG,"F is NULL");
+        if (f.mClassAdapter == null) Log.e(LOG_TAG, "mClassAdapter is null");
+            f.onAddingItemToList(description);
 //
 //        ListView listView = (ListView) findViewById(R.id.listview_done);
 //        TextView textView = (TextView) findViewById(R.id.list_item_done_textview);
@@ -122,9 +126,9 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
                     break;
                 case 0:
                     fragment = new DoneFragment();
-                    //getSupportFragmentManager().beginTransaction().add(R.id.container,new DoneFragment(),"DONE");
-                    //fragment = getSupportFragmentManager().findFragmentByTag("DONE");
-                    //Log.e(LOG_TAG, "" + fragment.getTag());
+
+//                    Fragment abc = getSupportFragmentManager().findFragmentByTag("DONE");
+//                    Log.e(LOG_TAG, "" + abc.getTag());
                     break;
                 case 2:
                     fragment = new WantToTakeFragment();

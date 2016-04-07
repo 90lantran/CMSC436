@@ -1,7 +1,6 @@
 package com.alantran.android.swipe;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -53,7 +52,7 @@ public class AllClassesFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Context activity) {
         super.onAttach(activity);
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
@@ -129,7 +128,7 @@ public class AllClassesFragment extends Fragment {
                     Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
 
-                    Log.e(LOG_TAG,"mCallBack is NULL");
+                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
                     mCallback.onAddingItemToList(listItemModel);
 
                 }
