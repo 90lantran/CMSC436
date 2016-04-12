@@ -2,19 +2,17 @@ package com.alantran.android.swipe;
 
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnDoneButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
@@ -41,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -53,18 +50,12 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-
+        // Set the middle tab is the default tab
         mViewPager.setCurrentItem(1);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+        // Try to tell android keeps 3 tabs alive all the time]
+        // Seem like this did not work
+        mViewPager.setOffscreenPageLimit(3);
     }
 
     @Override
@@ -93,14 +84,9 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
     public void onAddingItemToList(String description) {
         Log.e(LOG_TAG, description);
         DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
-        if (f == null) Log.e(LOG_TAG,"F is NULL");
-        if (f.mClassAdapter == null) Log.e(LOG_TAG, "mClassAdapter is null");
-            f.onAddingItemToList(description);
-//
-//        ListView listView = (ListView) findViewById(R.id.listview_done);
-//        TextView textView = (TextView) findViewById(R.id.list_item_done_textview);
-//        textView.setText(description);
-//        listView.addView(textView);
+        if (f == null) Log.e(LOG_TAG, "F is NULL");
+        if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
+        f.onAddingItemToList(description);
     }
 
 
@@ -108,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -121,21 +107,15 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             Fragment fragment = null;
             switch (position) {
                 case 1:
-
                     fragment = new AllClassesFragment();
                     break;
                 case 0:
                     fragment = new DoneFragment();
-
-//                    Fragment abc = getSupportFragmentManager().findFragmentByTag("DONE");
-//                    Log.e(LOG_TAG, "" + abc.getTag());
                     break;
                 case 2:
                     fragment = new WantToTakeFragment();
                     break;
-
             }
-
             return fragment;
         }
 

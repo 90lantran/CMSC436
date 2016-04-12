@@ -83,8 +83,6 @@ public class AllClassesFragment extends Fragment {
                 "Tue 6/24 - Foggy - 21/8",
                 "Wed 6/25 - Cloudy - 22/17"
         };
-        FetchClassesTask task = new FetchClassesTask();
-        task.execute("CMSC");
 
         List<String> classes = new ArrayList<String>(Arrays.asList(data));
 
@@ -92,12 +90,13 @@ public class AllClassesFragment extends Fragment {
 
         ListView mListView = (ListView) rootView.findViewById(R.id.listview_class);
 
-
         mListView.setAdapter(mClassAdapter);
 
+        // make API call to get data  which will use to populate listView of this fragement
+        FetchClassesTask task = new FetchClassesTask();
+        task.execute("CMSC");
 
         return rootView;
-
 
     }
 
@@ -107,13 +106,12 @@ public class AllClassesFragment extends Fragment {
             super(context, 0, listItemModel);
         }
 
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             final String listItemModel = getItem(position);
 
             if(convertView == null){
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_class_1,parent,false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_class,parent,false);
 
             }
 
@@ -146,10 +144,7 @@ public class AllClassesFragment extends Fragment {
             return convertView;
         }
 
-
     }
-
-
 
     public class FetchClassesTask extends AsyncTask<String, Void, String[]> {
 
@@ -166,7 +161,6 @@ public class AllClassesFragment extends Fragment {
             String DESCRIPTION = "description";
             String RELATIONSHIPS = "relationships";
             String SECTIONS = "sections";
-
 
             JSONArray classArray = new JSONArray(classJsonStr);
             String[] results = new String[classArray.length()];
@@ -185,7 +179,6 @@ public class AllClassesFragment extends Fragment {
 
             return results;
 
-
         }
 
         @Override
@@ -203,7 +196,6 @@ public class AllClassesFragment extends Fragment {
                 Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
                         .appendQueryParameter(DEPTID, params[0])
                         .build();
-
 
                 URL url = new URL(builtUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();

@@ -10,5 +10,4 @@
         android:gravity="center_vertical"
         android:id="@+id/list_item_done_textview"/>
 
-
 </LinearLayout>
