@@ -81,12 +81,24 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
     }
 
     @Override
-    public void onAddingItemToList(String description) {
+    public void onAddingItemToList(String description, String fragName) {
         Log.e(LOG_TAG, description);
-        DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
-        if (f == null) Log.e(LOG_TAG, "F is NULL");
-        if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-        f.onAddingItemToList(description);
+        //DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
+//        if (f == null) Log.e(LOG_TAG, "F is NULL");
+//        if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
+//        f.onAddingItemToList(description);
+
+        if (fragName.equals("remove")) {
+            DoneFragment f = (DoneFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 0);
+            if (f == null) Log.e(LOG_TAG, "F is NULL");
+            if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
+            f.onAddingItemToList(description);
+        } else {
+            WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 2);
+            if (f == null) Log.e(LOG_TAG, "F is NULL");
+            if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
+            f.onAddingItemToList(description);
+        }
     }
 
 
@@ -108,9 +120,14 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             switch (position) {
                 case 1:
                     fragment = new AllClassesFragment();
+
+
                     break;
                 case 0:
                     fragment = new DoneFragment();
+
+
+
                     break;
                 case 2:
                     fragment = new WantToTakeFragment();
@@ -137,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             }
             return null;
         }
+
+
     }
 
 

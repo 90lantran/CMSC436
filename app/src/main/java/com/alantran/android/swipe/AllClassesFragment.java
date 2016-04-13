@@ -48,7 +48,7 @@ public class AllClassesFragment extends Fragment {
 
 
     public interface OnDoneButtonClick {
-        public void onAddingItemToList(String description);
+        public void onAddingItemToList(String description, String fragName);
     }
 
     @Override
@@ -118,7 +118,7 @@ public class AllClassesFragment extends Fragment {
             final TextView description = (TextView) convertView.findViewById(R.id.list_item_class_textview);
             description.setText(listItemModel);
             Button removed = (Button) convertView.findViewById(R.id.remove_button);
-            Button pick = (Button) convertView.findViewById(R.id.pick_button);
+            Button picked = (Button) convertView.findViewById(R.id.pick_button);
             final View finalConvertView = convertView;
             removed.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -127,17 +127,18 @@ public class AllClassesFragment extends Fragment {
                             .setAction("Action", null).show();
 
                     if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
-                    mCallback.onAddingItemToList(listItemModel);
+                    mCallback.onAddingItemToList(listItemModel, "remove");
 
                 }
             });
 
-            pick.setOnClickListener(new View.OnClickListener() {
+            picked.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-
+                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
+                    mCallback.onAddingItemToList(listItemModel, "pick");
                 }
             });
 
