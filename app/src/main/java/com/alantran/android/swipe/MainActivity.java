@@ -50,12 +50,10 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        // Set the middle tab is the default tab
-        mViewPager.setCurrentItem(1);
 
-        // Try to tell android keeps 3 tabs alive all the time]
-        // Seem like this did not work
-        mViewPager.setOffscreenPageLimit(3);
+
+
+
     }
 
     @Override
@@ -118,18 +116,11 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             // Return a PlaceholderFragment (defined as a static inner class below).
             Fragment fragment = null;
             switch (position) {
-                case 1:
-                    fragment = new AllClassesFragment();
-
-
-                    break;
                 case 0:
-                    fragment = new DoneFragment();
-
-
-
+                    fragment = new AllClassesFragment();
                     break;
-                case 2:
+
+                case 1:
                     fragment = new WantToTakeFragment();
                     break;
             }
@@ -139,17 +130,15 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "REMOVE";
-                case 1:
                     return "ALL CLASSES";
-                case 2:
+                case 1:
                     return "PICK";
             }
             return null;

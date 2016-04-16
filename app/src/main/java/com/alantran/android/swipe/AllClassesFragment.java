@@ -7,13 +7,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -41,6 +42,9 @@ public class AllClassesFragment extends Fragment {
     CustomAdapter mClassAdapter;
 
     OnDoneButtonClick mCallback;
+
+    ArrayList<Classes> classes = new ArrayList<>();
+
 
     public AllClassesFragment() {
         // Required empty public constructor
@@ -71,26 +75,6 @@ public class AllClassesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_display_classes, container, false);
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7",
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17"
-        };
-
-        List<String> classes = new ArrayList<String>(Arrays.asList(data));
-
-        mClassAdapter = new CustomAdapter(getContext(), classes);
-
-        ListView mListView = (ListView) rootView.findViewById(R.id.listview_class);
-
-        mListView.setAdapter(mClassAdapter);
 
         // make API call to get data  which will use to populate listView of this fragement
         FetchClassesTask task = new FetchClassesTask();
@@ -147,9 +131,49 @@ public class AllClassesFragment extends Fragment {
 
     }
 
-    public class FetchClassesTask extends AsyncTask<String, Void, String[]> {
+    public class ClassesRecyclerViewAdapter extends RecyclerView.Adapter<ClassesRecyclerViewAdapter.ViewHolder>{
 
-        private String[] getClassDataFromJson(String classJsonStr)
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            View view = LayoutInflater.from(parent.getContext()).
+                    inflate(R.layout.allclasses_recycler_view_item, parent, false);
+
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            Classes currentClass = classes.get(position);
+            holder.getDescription().setText(currentClass.getDescription());
+            holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
+        }
+
+        @Override
+        public int getItemCount() {
+            return classes == null ? 0 : classes.size();
+
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder{
+            private TextView name;
+            private TextView description;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                name = (TextView) itemView.findViewById(R.id.class_textview_1);
+                description = (TextView) itemView.findViewById(R.id.class_textview_2);
+            }
+
+            public TextView getName() { return name; }
+            public  TextView getDescription() { return description;}
+        }
+    }
+
+    public class FetchClassesTask extends AsyncTask<String, Void, Classes[]> {
+
+        private Classes[] getClassDataFromJson(String classJsonStr)
                 throws JSONException {
             String COURSEID = "course_id";
             String NAME = "name";
@@ -164,7 +188,7 @@ public class AllClassesFragment extends Fragment {
             String SECTIONS = "sections";
 
             JSONArray classArray = new JSONArray(classJsonStr);
-            String[] results = new String[classArray.length()];
+            Classes[] results = new Classes[classArray.length()];
 
             for (int i = 0; i < classArray.length(); i++) {
                 String name;
@@ -172,9 +196,13 @@ public class AllClassesFragment extends Fragment {
                 String description;
 
                 JSONObject klass = classArray.getJSONObject(i);
-                results[i] = klass.getString(COURSEID) + ": " + klass.getString(NAME) + "\n";
-                results[i] = results[i] + klass.getString(DESCRIPTION);
-                Log.i(LOG_TAG, results[i]);
+                Classes currentClass = new Classes();
+                currentClass.setCourseID(klass.getString(COURSEID));
+                currentClass.setDescription(klass.getString(DESCRIPTION));
+                currentClass.setName(klass.getString(NAME));
+                results[i] = currentClass;
+
+                Log.i(LOG_TAG, results[i].toString());
 
             }
 
@@ -183,7 +211,7 @@ public class AllClassesFragment extends Fragment {
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected Classes[] doInBackground(String... params) {
 
             if (params == null) return null;
 
@@ -247,17 +275,18 @@ public class AllClassesFragment extends Fragment {
                 return getClassDataFromJson(classJsonStr);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
+
             }
 
             return null;
         }
 
         @Override
-        protected void onPostExecute(String[] strings) {
-            mClassAdapter.clear();
-            mClassAdapter.addAll(strings);
-            mClassAdapter.notifyDataSetChanged();
+        protected void onPostExecute(Classes[] strings) {
+            classes = new ArrayList<Classes>(Arrays.asList(strings));
+            RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
+            view.setAdapter(new ClassesRecyclerViewAdapter());
+
         }
     }
 
