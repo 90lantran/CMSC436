@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -133,6 +132,14 @@ public class AllClassesFragment extends Fragment {
 
     public class ClassesRecyclerViewAdapter extends RecyclerView.Adapter<ClassesRecyclerViewAdapter.ViewHolder>{
 
+        List<Boolean> expandableItem ;
+
+        public ClassesRecyclerViewAdapter(){
+            expandableItem = new ArrayList<>(classes.size());
+            for(int i = 0; i < classes.size(); i++){
+                expandableItem.add(false);
+            }
+        }
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -140,14 +147,11 @@ public class AllClassesFragment extends Fragment {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.allclasses_recycler_view_item, parent, false);
 
-            CardView cardView = (CardView) view.findViewById(R.id.card_view);
-
-
             return new ViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
             final Classes currentClass = classes.get(position);
             holder.getDescription().setText(currentClass.getDescription());
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
@@ -159,6 +163,23 @@ public class AllClassesFragment extends Fragment {
 
 
             });
+            final Button expandButton = holder.getExpandButton();
+            holder.getExpandButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (v.getId() == expandButton.getId() ){
+                        if(expandableItem.get(position)){
+                            holder.getExpandableLayout().setVisibility(View.GONE);
+                            expandableItem.set(position,false);
+                        } else {
+                            holder.getExpandableLayout().setVisibility(View.VISIBLE);
+                            expandableItem.set(position,true);
+                        }
+                    }
+                }
+            });
+
+
         }
 
         @Override
@@ -172,7 +193,7 @@ public class AllClassesFragment extends Fragment {
             private TextView description;
             private Button pickButton;
             private Button expandButton;
-
+            private ViewGroup expandableLayout;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -180,12 +201,14 @@ public class AllClassesFragment extends Fragment {
                 description = (TextView) itemView.findViewById(R.id.class_textview_2);
                 pickButton = (Button) itemView.findViewById(R.id.pick_button);
                 expandButton = (Button) itemView.findViewById(R.id.expand_button);
+                expandableLayout = (ViewGroup) itemView.findViewById(R.id.expandable_layout);
             }
 
             public TextView getName() { return name; }
             public  TextView getDescription() { return description;}
             public Button getPickButton(){return pickButton;}
             public Button getExpandButton(){return expandButton;}
+            public ViewGroup getExpandableLayout(){return expandableLayout;}
         }
     }
 
