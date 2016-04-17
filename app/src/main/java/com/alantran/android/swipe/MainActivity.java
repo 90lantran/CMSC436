@@ -14,7 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnDoneButtonClick {
+public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -79,8 +79,8 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
     }
 
     @Override
-    public void onAddingItemToList(String description, String fragName) {
-        Log.e(LOG_TAG, description);
+    public void onAddingItemToList(Classes currentClass, String fragName) {
+        Log.e(LOG_TAG, currentClass.toString());
         //DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
 //        if (f == null) Log.e(LOG_TAG, "F is NULL");
 //        if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
@@ -90,12 +90,12 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             DoneFragment f = (DoneFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 0);
             if (f == null) Log.e(LOG_TAG, "F is NULL");
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-            f.onAddingItemToList(description);
+            f.onAddingItemToList(currentClass.toString());
         } else {
-            WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 2);
+            WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
             if (f == null) Log.e(LOG_TAG, "F is NULL");
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-            f.onAddingItemToList(description);
+            f.onAddingItemToList(currentClass);
         }
     }
 

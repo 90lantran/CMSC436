@@ -55,8 +55,8 @@ public class WantToTakeFragment extends Fragment {
         return mClassAdapter;
     }
 
-    public void onAddingItemToList(String description) {
-        mClassAdapter.add(description);
+    public void onAddingItemToList(Classes currentClass) {
+        mClassAdapter.add(currentClass.getCourseID());
         mClassAdapter.notifyDataSetChanged();
 
     }

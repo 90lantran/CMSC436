@@ -5,8 +5,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +41,7 @@ public class AllClassesFragment extends Fragment {
 
     CustomAdapter mClassAdapter;
 
-    OnDoneButtonClick mCallback;
+    OnPickButtonClick mCallback;
 
     ArrayList<Classes> classes = new ArrayList<>();
 
@@ -51,8 +51,8 @@ public class AllClassesFragment extends Fragment {
     }
 
 
-    public interface OnDoneButtonClick {
-        public void onAddingItemToList(String description, String fragName);
+    public interface OnPickButtonClick {
+        public void onAddingItemToList(Classes currentClass, String fragName);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class AllClassesFragment extends Fragment {
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            mCallback = (OnDoneButtonClick) activity;
+            mCallback = (OnPickButtonClick) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
@@ -104,27 +104,27 @@ public class AllClassesFragment extends Fragment {
             Button removed = (Button) convertView.findViewById(R.id.remove_button);
             Button picked = (Button) convertView.findViewById(R.id.pick_button);
             final View finalConvertView = convertView;
-            removed.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-
-                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
-                    mCallback.onAddingItemToList(listItemModel, "remove");
-
-                }
-            });
-
-            picked.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
-                    mCallback.onAddingItemToList(listItemModel, "pick");
-                }
-            });
+//            removed.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                            .setAction("Action", null).show();
+//
+//                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
+//                    mCallback.onAddingItemToList(listItemModel, "remove");
+//
+//                }
+//            });
+//
+//            picked.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Snackbar.make(finalConvertView, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                            .setAction("Action", null).show();
+//                    if (mCallback == null) Log.e(LOG_TAG, "mCallback is null");
+//                    mCallback.onAddingItemToList(listItemModel, "pick");
+//                }
+//            });
 
             return convertView;
         }
@@ -140,14 +140,25 @@ public class AllClassesFragment extends Fragment {
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.allclasses_recycler_view_item, parent, false);
 
+            CardView cardView = (CardView) view.findViewById(R.id.card_view);
+
+
             return new ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Classes currentClass = classes.get(position);
+            final Classes currentClass = classes.get(position);
             holder.getDescription().setText(currentClass.getDescription());
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
+            holder.getPickButton().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCallback.onAddingItemToList(currentClass, "pick");
+                }
+
+
+            });
         }
 
         @Override
@@ -159,15 +170,22 @@ public class AllClassesFragment extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder{
             private TextView name;
             private TextView description;
+            private Button pickButton;
+            private Button expandButton;
+
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 name = (TextView) itemView.findViewById(R.id.class_textview_1);
                 description = (TextView) itemView.findViewById(R.id.class_textview_2);
+                pickButton = (Button) itemView.findViewById(R.id.pick_button);
+                expandButton = (Button) itemView.findViewById(R.id.expand_button);
             }
 
             public TextView getName() { return name; }
             public  TextView getDescription() { return description;}
+            public Button getPickButton(){return pickButton;}
+            public Button getExpandButton(){return expandButton;}
         }
     }
 

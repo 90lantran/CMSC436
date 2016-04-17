@@ -22,9 +22,6 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-
-
-
             <TextView
                 android:id="@+id/class_textview_1"
                 android:layout_width="match_parent"
@@ -39,14 +36,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                android:textAppearance="?android:attr/textAppearanceMedium"
+
                 />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PICK"
-                android:background="@color/colorAccent"/>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PICK"
+                    android:background="@color/colorAccent"
+                    android:id="@+id/pick_button"
+                    android:layout_alignParentRight="true"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Expand"
+                    android:id="@+id/expand_button"
+                    android:layout_alignParentLeft="true"/>
+
+            </RelativeLayout>
+
 
         </LinearLayout>
 
