@@ -68,25 +68,15 @@ public class AllClassesFragment extends Fragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_display_classes, container, false);
 
-        //
         FetchClassesTask task = new FetchClassesTask();
         task.execute("CMSC");
-        //Log.e(LOG_TAG, "Size of descriotiptions " + classNames.size());
-//        FetchClassesTask task1 = new FetchClassesTask();
-//
-//        for (String name : descriptions.keySet()) {
-//            Log.e(LOG_TAG, name);
-//            task1.execute(name);
-//        }
         return rootView;
-
     }
 
 
@@ -119,8 +109,6 @@ public class AllClassesFragment extends Fragment {
             holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
             holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
             holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
-
-
 
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -165,7 +153,7 @@ public class AllClassesFragment extends Fragment {
 
             public ViewHolder(View itemView) {
                 super(itemView);
-                name = (TextView) itemView.findViewById(R.id.class_textview_1);
+                name = (TextView) itemView.findViewById(R.id.class_name);
                 description = (TextView) itemView.findViewById(R.id.expand_textview);
                 pickButton = (Button) itemView.findViewById(R.id.pick_button);
                 expandButton = (Button) itemView.findViewById(R.id.expand_button);
@@ -205,8 +193,6 @@ public class AllClassesFragment extends Fragment {
             public TextView getTime() {
                 return time;
             }
-
-
         }
     }
 
@@ -304,18 +290,9 @@ public class AllClassesFragment extends Fragment {
 
             }
 
-            //FetchSectionsTask task1 = new FetchSectionsTask();
-//            numClasses = descriptions.size();
-//            for (String name : descriptions.keySet()) {
-//                Log.e(LOG_TAG, name);
-//                new FetchSectionsTask().execute("CMSC330");
-//            }
             Set<String> temp = descriptions.keySet();
             new  FetchSectionsTask().execute( descriptions.keySet().toArray(new String[descriptions.keySet().size()]));
-
-
         }
-
 
         public class FetchSectionsTask extends AsyncTask<String, Void, Classes[]> {
             StringBuilder sb = new StringBuilder();
@@ -336,8 +313,6 @@ public class AllClassesFragment extends Fragment {
                 Classes[] results = new Classes[sectionArray.length()];
 
                 for (int i = 0; i < sectionArray.length(); i++) {
-
-
                     JSONObject section = sectionArray.getJSONObject(i);
                     Classes currentClass = new Classes();
                     currentClass.setCourseID(section.getString(SECTION_ID)); // CMSC132-0101
@@ -355,7 +330,6 @@ public class AllClassesFragment extends Fragment {
                     currentClass.setRoom(meeting.getString(ROOM));
                     results[i] = currentClass;
                     //}
-
                     Log.i(LOG_TAG, results[i].toString());
                 }
                 return results;
@@ -405,10 +379,6 @@ public class AllClassesFragment extends Fragment {
                         }
                         Classes[] temp = getClassDataFromJson(buffer.toString());
                         list.addAll(Arrays.asList(temp));
-                        //sectionJsonStr = buffer.toString();
-                        //Log.i(LOG_TAG, sectionJsonStr);
-
-
 
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "Error", e);
@@ -430,7 +400,6 @@ public class AllClassesFragment extends Fragment {
                 }
 
                 Classes[] arr = list.toArray(new Classes[list.size()]);
-
                 return arr;
             }
 
@@ -438,9 +407,6 @@ public class AllClassesFragment extends Fragment {
             protected void onPostExecute(Classes[] strings) {
                 Log.e(LOG_TAG + "classes to display" , strings.length + "");
                 classes.addAll(Arrays.asList(strings));
-
-
-
                 RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
                 view.setAdapter(new ClassesRecyclerViewAdapter());
 

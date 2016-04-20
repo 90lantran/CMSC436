@@ -50,10 +50,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-
-
-
-
     }
 
     @Override
@@ -81,17 +77,7 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
     @Override
     public void onAddingItemToList(Classes currentClass, String fragName) {
         Log.e(LOG_TAG, currentClass.toString());
-        //DoneFragment f = (DoneFragment) mSectionsPagerAdapter.getItem(0);
-//        if (f == null) Log.e(LOG_TAG, "F is NULL");
-//        if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-//        f.onAddingItemToList(description);
-
-        if (fragName.equals("remove")) {
-            DoneFragment f = (DoneFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 0);
-            if (f == null) Log.e(LOG_TAG, "F is NULL");
-            if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-            f.onAddingItemToList(currentClass.toString());
-        } else {
+        if (fragName.equals("pick")) {
             WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
             if (f == null) Log.e(LOG_TAG, "F is NULL");
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
