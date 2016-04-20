@@ -27,8 +27,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -41,8 +43,9 @@ public class AllClassesFragment extends Fragment {
     OnPickButtonClick mCallback;
 
     ArrayList<Classes> classes = new ArrayList<>();
-    Map<String, String> descriptions = new HashMap<>();
+    Map<String, String> descriptions = new LinkedHashMap<>();
     Map<String, String> classNames = new HashMap<>();
+
 
     public AllClassesFragment() {
         // Required empty public constructor
@@ -112,6 +115,13 @@ public class AllClassesFragment extends Fragment {
             final Classes currentClass = classes.get(position);
             holder.getDescription().setText(currentClass.getDescription());
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
+
+            holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
+            holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
+            holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
+
+
+
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -127,6 +137,7 @@ public class AllClassesFragment extends Fragment {
                     if (v.getId() == expandButton.getId()) {
                         if (expandableItem.get(position)) {
                             holder.getExpandableLayout().setVisibility(View.GONE);
+
                             expandableItem.set(position, false);
                         } else {
                             holder.getExpandableLayout().setVisibility(View.VISIBLE);
@@ -148,14 +159,20 @@ public class AllClassesFragment extends Fragment {
             private Button pickButton;
             private Button expandButton;
             private ViewGroup expandableLayout;
+            private TextView instructor;
+            private TextView location;
+            private TextView time;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 name = (TextView) itemView.findViewById(R.id.class_textview_1);
-                description = (TextView) itemView.findViewById(R.id.class_textview_2);
+                description = (TextView) itemView.findViewById(R.id.expand_textview);
                 pickButton = (Button) itemView.findViewById(R.id.pick_button);
                 expandButton = (Button) itemView.findViewById(R.id.expand_button);
                 expandableLayout = (ViewGroup) itemView.findViewById(R.id.expandable_layout);
+                instructor = (TextView) itemView.findViewById(R.id.instructor_textview);
+                location = (TextView) itemView.findViewById(R.id.location_textview);
+                time = (TextView) itemView.findViewById(R.id.time_textview);
             }
 
             public TextView getName() {
@@ -177,6 +194,19 @@ public class AllClassesFragment extends Fragment {
             public ViewGroup getExpandableLayout() {
                 return expandableLayout;
             }
+
+            public TextView getInstructor() {
+                return instructor;
+            }
+
+            public TextView getLocation() {
+                return location;
+            }
+            public TextView getTime() {
+                return time;
+            }
+
+
         }
     }
 
@@ -274,21 +304,25 @@ public class AllClassesFragment extends Fragment {
 
             }
 
-            FetchSectionsTask task1 = new FetchSectionsTask();
-
-            for (String name : descriptions.keySet()) {
-                Log.e(LOG_TAG, name);
-                task1.execute(name);
-            }
+            //FetchSectionsTask task1 = new FetchSectionsTask();
+//            numClasses = descriptions.size();
+//            for (String name : descriptions.keySet()) {
+//                Log.e(LOG_TAG, name);
+//                new FetchSectionsTask().execute("CMSC330");
+//            }
+            Set<String> temp = descriptions.keySet();
+            new  FetchSectionsTask().execute( descriptions.keySet().toArray(new String[descriptions.keySet().size()]));
 
 
         }
 
 
         public class FetchSectionsTask extends AsyncTask<String, Void, Classes[]> {
+            StringBuilder sb = new StringBuilder();
             private Classes[] getClassDataFromJson(String sectionJsonStr) throws JSONException {
                 String NUMBER = "number";
-                String INSTRUCTOR = "instructor";
+                String COURSE = "course";
+                String INSTRUCTOR = "instructors";
                 String MEETINGS = "meetings";
                 String DAYS = "days";
                 String START_TIME = "start_time";
@@ -307,9 +341,10 @@ public class AllClassesFragment extends Fragment {
                     JSONObject section = sectionArray.getJSONObject(i);
                     Classes currentClass = new Classes();
                     currentClass.setCourseID(section.getString(SECTION_ID)); // CMSC132-0101
-                    //currentClass.setName();
-                    //currentClass.setDescription();
-                    currentClass.setInstructor(section.getString(INSTRUCTOR));
+                    currentClass.setName(classNames.get(section.getString(COURSE)));
+                    currentClass.setDescription(descriptions.get(section.getString(COURSE)));
+                    JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
+                    currentClass.setInstructor(instructorArr.get(0).toString());
                     JSONArray meetings = section.getJSONArray(MEETINGS);
                     //for (int j = 0; j < meetings.length(); j++) {
                     JSONObject meeting = meetings.getJSONObject(0);
@@ -328,77 +363,84 @@ public class AllClassesFragment extends Fragment {
 
             @Override
             protected Classes[] doInBackground(String... params) {
+                String CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?";
+                String COURSE = "course";
+                List<Classes> list = new ArrayList<>();
                 if (params == null) return null;
 
-                HttpURLConnection urlConnection = null;
-                BufferedReader reader = null;
-                String sectionJsonStr = null;
-                try {
-                    String CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?";
-                    String COURSE = "course";
 
-                    Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
-                            .appendQueryParameter(COURSE, params[0])
-                            .build();
 
-                    URL url = new URL(builtUri.toString());
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
+                for(int i = 0 ; i < params.length; i++) {
+                    HttpURLConnection urlConnection = null;
+                    BufferedReader reader = null;
+                    String sectionJsonStr = null;
+                    try {
 
-                    // Read the input stream into String
-                    InputStream inputStream = urlConnection.getInputStream();
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream == null) {
-                        // Nothing to do.
-                        return null;
-                    }
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                        // But it does make debugging a *lot* easier if you print out the completed
-                        // buffer for debugging.
-                        buffer.append(line + "\n");
-                    }
+                        Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
+                                .appendQueryParameter(COURSE, params[i])
+                                .build();
 
-                    if (buffer.length() == 0) {
-                        // Stream was empty.  No point in parsing.
-                        return null;
-                    }
+                        URL url = new URL(builtUri.toString());
+                        urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod("GET");
+                        urlConnection.connect();
 
-                    sectionJsonStr = buffer.toString();
-                    Log.i(LOG_TAG, sectionJsonStr);
+                        // Read the input stream into String
+                        InputStream inputStream = urlConnection.getInputStream();
 
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error", e);
-                } finally {
-                    if (urlConnection != null) {
-                        urlConnection.disconnect();
-                    }
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (final IOException e) {
-                            Log.e(LOG_TAG, "Error closing stream", e);
+                        if (inputStream == null) {
+                            return null;
+                        }
+                        reader = new BufferedReader(new InputStreamReader(inputStream));
+                        StringBuffer buffer = new StringBuffer();
+                        String line;
+
+                        while ((line = reader.readLine()) != null && line.length() != 0) {
+                            buffer.append(line );
+                        }
+
+                        if (buffer.length() == 0) {
+                            return null;
+                        }
+                        Classes[] temp = getClassDataFromJson(buffer.toString());
+                        list.addAll(Arrays.asList(temp));
+                        //sectionJsonStr = buffer.toString();
+                        //Log.i(LOG_TAG, sectionJsonStr);
+
+
+
+                    } catch (IOException e) {
+                        Log.e(LOG_TAG, "Error", e);
+                    } catch (JSONException e) {
+                        Log.e(LOG_TAG, "Error parsing", e);
+                    } finally {
+                        if (urlConnection != null) {
+                            urlConnection.disconnect();
+                        }
+                        if (reader != null) {
+                            try {
+                                reader.close();
+                            } catch (final IOException e) {
+                                Log.e(LOG_TAG, "Error closing stream", e);
+                            }
                         }
                     }
-                }
-
-                try {
-                    return getClassDataFromJson(sectionJsonStr);
-                } catch (JSONException e) {
-                    Log.e(LOG_TAG, e.getMessage(), e);
 
                 }
 
-                return null;
+                Classes[] arr = list.toArray(new Classes[list.size()]);
+
+                return arr;
             }
 
             @Override
             protected void onPostExecute(Classes[] strings) {
-                classes = new ArrayList<Classes>(Arrays.asList(strings));
+                Log.e(LOG_TAG + "classes to display" , strings.length + "");
+                classes.addAll(Arrays.asList(strings));
+
+
+
                 RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
                 view.setAdapter(new ClassesRecyclerViewAdapter());
 

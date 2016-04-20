@@ -34,10 +34,20 @@
             <TextView
                 android:id="@+id/class_textview_2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="wrap_content" />
 
-
-                />
+            <TextView
+                android:id="@+id/instructor_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/location_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/time_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -73,7 +83,6 @@
                <TextView
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:text="I m here hfghfghfghdfgh "
                    android:id="@+id/expand_textview"/>
 
 
