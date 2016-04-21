@@ -26,23 +26,19 @@ public class WantToTakeFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         View rootView = inflater.inflate(R.layout.fragment_want_to_take, container, false);
         String[] data = {};
-
         List<String> classes = new ArrayList<String>(Arrays.asList(data));
 
         mClassAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.list_item_done,
-                R.id.list_item_done_textview,
+                R.layout.list_item_want_to_take,
+                R.id.list_item_textview,
                 classes
         );
-
 
         ListView mListView = (ListView) rootView.findViewById(R.id.listview_want_to_take);
 
@@ -55,10 +51,15 @@ public class WantToTakeFragment extends Fragment {
         return mClassAdapter;
     }
 
-    public void onAddingItemToList(Classes currentClass) {
-        mClassAdapter.add(currentClass.getCourseID());
-        mClassAdapter.notifyDataSetChanged();
-
+    public boolean onAddingItemToList(Classes currentClass) {
+        String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
+        if (mClassAdapter.getPosition(newItem) == -1) {
+            mClassAdapter.add(newItem);
+            mClassAdapter.notifyDataSetChanged();
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

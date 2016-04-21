@@ -243,7 +243,6 @@ public class AllClassesFragment extends Fragment {
                 }
 
                 classJsonStr = buffer.toString();
-                //Log.i(LOG_TAG, "XXXX" + classJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error", e);
@@ -319,15 +318,19 @@ public class AllClassesFragment extends Fragment {
                     currentClass.setName(classNames.get(section.getString(COURSE)));
                     currentClass.setDescription(descriptions.get(section.getString(COURSE)));
                     JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
-                    currentClass.setInstructor(instructorArr.get(0).toString());
-                    JSONArray meetings = section.getJSONArray(MEETINGS);
-                    //for (int j = 0; j < meetings.length(); j++) {
-                    JSONObject meeting = meetings.getJSONObject(0);
-                    currentClass.setDays(meeting.getString(DAYS));
-                    currentClass.setStartTime(meeting.getString(START_TIME));
-                    currentClass.setEndTime(meeting.getString(END_TIME));
-                    currentClass.setBuilding(meeting.getString(BUILDING));
-                    currentClass.setRoom(meeting.getString(ROOM));
+                    if (instructorArr.length() >= 1) {
+                        currentClass.setInstructor(instructorArr.get(0).toString());
+
+                        JSONArray meetings = section.getJSONArray(MEETINGS);
+                        //for (int j = 0; j < meetings.length(); j++) {
+                        JSONObject meeting = meetings.getJSONObject(0);
+                        currentClass.setDays(meeting.getString(DAYS));
+
+                        currentClass.setStartTime(meeting.getString(START_TIME));
+                        currentClass.setEndTime(meeting.getString(END_TIME));
+                        currentClass.setBuilding(meeting.getString(BUILDING));
+                        currentClass.setRoom(meeting.getString(ROOM));
+                    }
                     results[i] = currentClass;
                     //}
                     Log.i(LOG_TAG, results[i].toString());

@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
@@ -81,8 +82,21 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
             if (f == null) Log.e(LOG_TAG, "F is NULL");
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
-            f.onAddingItemToList(currentClass);
+            if (f.onAddingItemToList(currentClass)){
+                // Make a toast
+                CharSequence text = "Added " + currentClass.getCourseID() + "to the list of classes for next semester";
+
+                Toast toast = Toast.makeText(getApplicationContext(),text, Toast.LENGTH_SHORT);
+                toast.show();
+            } else {
+                CharSequence text = "This class is already in the list of classes for next semester";
+
+                Toast toast = Toast.makeText(getApplicationContext(),text, Toast.LENGTH_SHORT);
+                toast.show();
+            }
         }
+
+
     }
 
 
