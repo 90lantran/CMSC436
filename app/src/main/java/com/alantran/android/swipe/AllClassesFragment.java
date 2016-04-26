@@ -109,7 +109,7 @@ public class AllClassesFragment extends Fragment {
             holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
             holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
             holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
-
+            Log.i(LOG_TAG,"Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime() );
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

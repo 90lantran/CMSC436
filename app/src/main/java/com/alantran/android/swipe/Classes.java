@@ -3,6 +3,8 @@ package com.alantran.android.swipe;
 /**
  * Created by alantran on 4/15/16.
  */
+
+import java.util.Date;
 public class Classes {
    private  String courseID;
     private String name;
@@ -14,18 +16,46 @@ public class Classes {
     private String building;
     private String room;
     private String classtype;
-
-    public Classes(){
-
-    }
+    private Date startTimeSimple;
+    private Date endTimeSimple;
+    private Integer color = -1;
 
     public Classes(String courseID, String name, String description) {
         this.courseID = courseID;
         this.name = name;
         this.description = description;
     }
+
+    public Classes(){
+
+    }
+
+    public Date getEndTimeSimple() {
+        return endTimeSimple;
+    }
+
+    public void setEndTimeSimple(Date endTimeSimple) {
+        this.endTimeSimple = endTimeSimple;
+    }
+
+    public Date getStartTimeSimple() {
+        return startTimeSimple;
+    }
+
+    public void setStartTimeSimple(Date startTimeSimple) {
+        this.startTimeSimple = startTimeSimple;
+    }
+
     public String getDays() {
         return days;
+    }
+
+    public Integer getColor() {
+        return color;
+    }
+
+    public void setColor(Integer color) {
+        this.color = color;
     }
 
     public void setDays(String days) {
@@ -52,7 +82,6 @@ public class Classes {
         return room;
     }
 
-
     public void setRoom(String room) {
         this.room = room;
     }
@@ -64,8 +93,6 @@ public class Classes {
     public void setClasstype(String classtype) {
         this.classtype = classtype;
     }
-
-
 
     public String getEndTime() {
         return endTime;
@@ -103,15 +130,22 @@ public class Classes {
         return courseID;
     }
 
-
     public void setCourseID(String courseID) {
         this.courseID = courseID;
     }
+
     @Override
     public String toString() {
         return "Classes{" +
-                "courseID='" + courseID + '\'' +
+                "courseID ='" + courseID + '\'' +
+                ", name ='" + name + '\'' +
+                ", startTimeSimple = " + startTimeSimple +
+                ", endTimeSimple = " + endTimeSimple +
+                ", color = " + color +
                 '}';
     }
 
+    public int overLaps(Classes other){
+        return this.getEndTimeSimple().compareTo(other.getStartTimeSimple());
+    }
 }
