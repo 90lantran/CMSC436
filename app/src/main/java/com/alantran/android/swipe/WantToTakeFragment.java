@@ -1,7 +1,6 @@
 package com.alantran.android.swipe;
 
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -11,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import java.text.ParseException;
@@ -61,11 +59,12 @@ public class WantToTakeFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Classes[] wantClaases = composeSchedules();
-                Intent intent = new Intent(this, DisplayScheduleActivity.class);
-                EditText editText = (EditText) findViewById(R.id.edit_message);
-                String message = editText.getText().toString();
-                intent.putExtra(EXTRA_MESSAGE, message);
+                Classes[] wantToTakeClasses = composeSchedules();
+                Intent intent = new Intent(getActivity(), DisplaySchedules.class);
+                //EditText editText = (EditText) findViewById(R.id.edit_message);
+                //String message = editText.getText().toString();
+                intent.putParcelableArrayListExtra("Schedule_list", new ArrayList<Classes>
+                        (Arrays.asList(wantToTakeClasses)));
                 startActivity(intent);
             }
         });

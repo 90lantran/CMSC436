@@ -4,9 +4,13 @@ package com.alantran.android.swipe;
  * Created by alantran on 4/15/16.
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
-public class Classes {
-   private  String courseID;
+
+public class Classes implements Parcelable {
+    private String courseID;
     private String name;
     private String description;
     private String startTime;
@@ -26,7 +30,7 @@ public class Classes {
         this.description = description;
     }
 
-    public Classes(){
+    public Classes() {
 
     }
 
@@ -145,7 +149,58 @@ public class Classes {
                 '}';
     }
 
-    public int overLaps(Classes other){
+    public int overLaps(Classes other) {
         return this.getEndTimeSimple().compareTo(other.getStartTimeSimple());
     }
+
+
+    // Parcelable part.
+
+    private Classes(Parcel in) {
+        courseID = in.readString();
+        name = in.readString();
+        description = in.readString();
+        startTime = in.readString();
+        endTime = in.readString();
+        instructor = in.readString();
+        days = in.readString();
+        building = in.readString();
+        room = in.readString();
+        classtype = in.readString();
+        color = in.readInt();
+        //private Date startTimeSimple ;
+        //private Date endTimeSimple;
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(courseID);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeString(startTime);
+        dest.writeString(endTime);
+        dest.writeString(instructor);
+        dest.writeString(days);
+        dest.writeString(building);
+        dest.writeString(room);
+        dest.writeString(classtype);
+        dest.writeInt(color);
+    }
+
+    public static final Parcelable.Creator<Classes> CREATOR = new Parcelable.Creator<Classes>() {
+        public Classes createFromParcel(Parcel in) {
+            return new Classes(in);
+        }
+
+        public Classes[] newArray(int size) {
+            return new Classes[size];
+
+        }
+    };
 }
