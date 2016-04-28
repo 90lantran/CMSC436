@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.alantran.android.swipe.com.alantran.android.swipe.objects.Classes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +22,7 @@ import java.util.List;
 public class WantToTakeFragment extends Fragment {
     String LOG_TAG = WantToTakeFragment.class.getSimpleName();
 
-    ArrayAdapter<String> mClassAdapter ;
+    ArrayAdapter<Classes> mClassAdapter ;
 
     public WantToTakeFragment() {
         // Required empty public constructor
@@ -31,10 +33,10 @@ public class WantToTakeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_want_to_take, container, false);
-        String[] data = {};
-        List<String> classes = new ArrayList<String>(Arrays.asList(data));
+        Classes[] data = {};
+        List<Classes> classes = new ArrayList<Classes>(Arrays.asList(data));
 
-        mClassAdapter = new ArrayAdapter<String>(getActivity(),
+        mClassAdapter = new ArrayAdapter<Classes>(getActivity(),
                 R.layout.list_item_want_to_take,
                 R.id.list_item_textview,
                 classes
@@ -47,19 +49,17 @@ public class WantToTakeFragment extends Fragment {
         return rootView;
     }
 
-    public ArrayAdapter<String> getArrayAdapter(){
+    public ArrayAdapter<Classes> getArrayAdapter(){
         return mClassAdapter;
     }
 
     public boolean onAddingItemToList(Classes currentClass) {
-        String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
-        if (mClassAdapter.getPosition(newItem) == -1) {
-            mClassAdapter.add(newItem);
+        if (mClassAdapter.getPosition(currentClass) == -1) {
+            mClassAdapter.add(currentClass);
             mClassAdapter.notifyDataSetChanged();
             return true;
         } else {
             return false;
         }
     }
-
 }

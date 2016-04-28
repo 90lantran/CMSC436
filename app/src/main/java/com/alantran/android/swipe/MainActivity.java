@@ -1,7 +1,9 @@
 package com.alantran.android.swipe;
 
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,7 +15,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
+
+import com.alantran.android.swipe.com.alantran.android.swipe.objects.Classes;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
@@ -40,6 +47,14 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createSchedules(view);
+            }
+        });
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -51,6 +66,23 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+    }
+
+    private void createSchedules(View view) {
+        Intent buildSchedules = new Intent(getBaseContext(), CreatedSchedules.class);
+        WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
+
+        ArrayList<Classes> classes = new ArrayList<Classes>(); // list of classes to send over
+        // This feels like an extremely ugly get around
+        // Get each class from the adapter and put it into this arraylist
+        for (int i = 0; i < f.getArrayAdapter().getCount(); i++) {
+            classes.add(f.getArrayAdapter().getItem(i));
+        }
+
+        buildSchedules.putParcelableArrayListExtra("classes", classes);
+        startActivity(buildSchedules);
+        //Snackbar.make(view, f.getArrayAdapter().getItem(0), Snackbar.LENGTH_LONG)
+                //.setAction("Action", null).show();
     }
 
     @Override
@@ -95,8 +127,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
                 toast.show();
             }
         }
-
-
     }
 
 
@@ -143,9 +173,5 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             }
             return null;
         }
-
-
     }
-
-
 }

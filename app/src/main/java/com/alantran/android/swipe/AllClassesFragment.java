@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.alantran.android.swipe.com.alantran.android.swipe.objects.Classes;
+import com.alantran.android.swipe.com.alantran.android.swipe.objects.Section;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,8 +110,9 @@ public class AllClassesFragment extends Fragment {
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
 
             holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
-            holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
-            holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
+            // TODO: finish this
+            //holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
+            //holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
 
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -295,7 +299,8 @@ public class AllClassesFragment extends Fragment {
 
         public class FetchSectionsTask extends AsyncTask<String, Void, Classes[]> {
             StringBuilder sb = new StringBuilder();
-            private Classes[] getClassDataFromJson(String sectionJsonStr) throws JSONException {
+
+            private void getClassDataFromJson(String sectionJsonStr, Classes currentClass) throws JSONException {
                 String NUMBER = "number";
                 String COURSE = "course";
                 String INSTRUCTOR = "instructors";
@@ -309,33 +314,34 @@ public class AllClassesFragment extends Fragment {
                 String SECTION_ID = "section_id";
 
                 JSONArray sectionArray = new JSONArray(sectionJsonStr);
-                Classes[] results = new Classes[sectionArray.length()];
 
-                for (int i = 0; i < sectionArray.length(); i++) {
+                for (int i = 0; i < sectionArray.length(); i++) { // For each section
                     JSONObject section = sectionArray.getJSONObject(i);
-                    Classes currentClass = new Classes();
-                    currentClass.setCourseID(section.getString(SECTION_ID)); // CMSC132-0101
-                    currentClass.setName(classNames.get(section.getString(COURSE)));
-                    currentClass.setDescription(descriptions.get(section.getString(COURSE)));
-                    JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
-                    if (instructorArr.length() >= 1) {
-                        currentClass.setInstructor(instructorArr.get(0).toString());
+                    JSONArray meetings = section.getJSONArray(MEETINGS); // Need to find how many section objects we need
 
-                        JSONArray meetings = section.getJSONArray(MEETINGS);
-                        //for (int j = 0; j < meetings.length(); j++) {
-                        JSONObject meeting = meetings.getJSONObject(0);
-                        currentClass.setDays(meeting.getString(DAYS));
+                    // TODO: Make sure this thing actually works. Are there classes without sections or other missing data?
+                    for (int j = 0; j < meetings.length(); j++) {
+                        Section currentSection = new Section();
+                        currentSection.setSectionId(section.getString(SECTION_ID)); // CMSC132-0101
+                        currentSection.setName(classNames.get(section.getString(COURSE)));
+                        currentSection.setDescription(descriptions.get(section.getString(COURSE)));
 
-                        currentClass.setStartTime(meeting.getString(START_TIME));
-                        currentClass.setEndTime(meeting.getString(END_TIME));
-                        currentClass.setBuilding(meeting.getString(BUILDING));
-                        currentClass.setRoom(meeting.getString(ROOM));
+                        JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
+                        if (instructorArr.length() >= 1) {
+                            currentSection.setInstructor(instructorArr.get(0).toString()); // TODO: what if there are many or no instructors?
+                        }
+                        JSONObject meeting = meetings.getJSONObject(j);
+                        currentSection.setDays(meeting.getString(DAYS));
+
+                        currentSection.setStartTime(meeting.getString(START_TIME));
+                        currentSection.setEndTime(meeting.getString(END_TIME));
+                        currentSection.setBuilding(meeting.getString(BUILDING));
+                        currentSection.setRoom(meeting.getString(ROOM));
+                        currentSection.setClasstype(meeting.getString(CLASSTYPE));
+                        currentClass.addSection(section.getString(SECTION_ID), currentSection);
+                        Log.i(LOG_TAG, currentSection.toString());
                     }
-                    results[i] = currentClass;
-                    //}
-                    Log.i(LOG_TAG, results[i].toString());
                 }
-                return results;
             }
 
             @Override
@@ -345,15 +351,11 @@ public class AllClassesFragment extends Fragment {
                 List<Classes> list = new ArrayList<>();
                 if (params == null) return null;
 
-
-
                 for(int i = 0 ; i < params.length; i++) {
                     HttpURLConnection urlConnection = null;
                     BufferedReader reader = null;
                     String sectionJsonStr = null;
                     try {
-
-
                         Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
                                 .appendQueryParameter(COURSE, params[i])
                                 .build();
@@ -380,8 +382,15 @@ public class AllClassesFragment extends Fragment {
                         if (buffer.length() == 0) {
                             return null;
                         }
-                        Classes[] temp = getClassDataFromJson(buffer.toString());
-                        list.addAll(Arrays.asList(temp));
+
+                        // Build the new class object
+                        Classes newClass = new Classes();
+                        newClass.setCourseID(params[i]);
+                        newClass.setDescription(descriptions.get(params[i]));
+                        newClass.setName(classNames.get(params[i]));
+
+                        getClassDataFromJson(buffer.toString(), newClass);
+                        list.add(newClass);
 
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "Error", e);
@@ -399,7 +408,6 @@ public class AllClassesFragment extends Fragment {
                             }
                         }
                     }
-
                 }
 
                 Classes[] arr = list.toArray(new Classes[list.size()]);
