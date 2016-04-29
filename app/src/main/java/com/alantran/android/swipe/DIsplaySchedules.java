@@ -104,7 +104,7 @@ public class DisplaySchedules extends AppCompatActivity {
         for(Integer d : divider) {
             end = d;
             int i;
-            String s = null;
+            String s = "";
             for (i = start; i <= end; i++) {
                s +=  (listClasses.get(i).getCourseID() + " "+listClasses.get(i).getBuilding() + " "+listClasses.get(i).getRoom() +
                         " "+ listClasses.get(i).getStartTime() + " "+listClasses.get(i).getEndTime() + "\n");
