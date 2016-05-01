@@ -10,6 +10,25 @@ import android.os.Parcelable;
 import java.util.Date;
 
 public class Classes implements Parcelable {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Classes)) return false;
+
+        Classes classes = (Classes) o;
+
+        if (!getCourseID().equals(classes.getCourseID())) return false;
+        return getName().equals(classes.getName());
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getCourseID().hashCode();
+        result = 31 * result + getName().hashCode();
+        return result;
+    }
+
     private String courseID;
     private String name;
     private String description;

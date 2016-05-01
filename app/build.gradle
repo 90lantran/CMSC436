@@ -40,4 +40,5 @@ dependencies {
     //Optional for drag and drop
     compile 'com.github.gabrielemariotti.cards:cardslib-extra-dragdrop:2.1.0'
 
+
 }

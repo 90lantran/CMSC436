@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +17,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.internal.CardThumbnail;
+import it.gmariotti.cardslib.library.view.CardListView;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,7 +30,8 @@ import java.util.List;
 public class WantToTakeFragment extends Fragment {
     String LOG_TAG = WantToTakeFragment.class.getSimpleName();
 
-    ArrayAdapter<String> mClassAdapter ;
+    //ArrayAdapter<String> mClassAdapter ;
+    CardArrayAdapter mCardArrayAdapter;
     List<Classes> wantToTake ;
 
     public WantToTakeFragment() {
@@ -39,20 +44,36 @@ public class WantToTakeFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_want_to_take, container, false);
-        String[] data = {};
-        List<String> classes = new ArrayList<String>(Arrays.asList(data));
-
-        mClassAdapter = new ArrayAdapter<String>(getActivity(),
-                R.layout.list_item_want_to_take,
-                R.id.list_item_textview,
-                classes
-        );
-
-        ListView mListView = (ListView) rootView.findViewById(R.id.listview_want_to_take);
-
-        mListView.setAdapter(mClassAdapter);
 
 
+        ArrayList<Card> cards = new ArrayList<Card>();
+
+
+
+        mCardArrayAdapter = new CardArrayAdapter(getActivity(),cards);
+        mCardArrayAdapter.setEnableUndo(true);
+
+        CardListView listView = (CardListView) rootView.findViewById(R.id.myList);
+        if (listView!=null){
+            listView.setAdapter(mCardArrayAdapter);
+        }
+
+
+//        String[] data = {};
+//        List<String> classes = new ArrayList<String>(Arrays.asList(data));
+//
+//        mClassAdapter = new ArrayAdapter<String>(getActivity(),
+//                R.layout.list_item_want_to_take,
+//                R.id.list_item_textview,
+//                classes
+//        );
+//
+//        ListView mListView = (ListView) rootView.findViewById(R.id.listview_want_to_take);
+//
+//        mListView.setAdapter(mClassAdapter);
+//
+//
+//
         FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
 
 
@@ -72,16 +93,42 @@ public class WantToTakeFragment extends Fragment {
         return rootView;
     }
 
-    public ArrayAdapter<String> getArrayAdapter(){
-        return mClassAdapter;
+    public CardArrayAdapter getArrayAdapter(){
+        return mCardArrayAdapter;
     }
 
     public boolean onAddingItemToList(Classes currentClass) {
-        wantToTake.add(currentClass);
-        String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
-        if (mClassAdapter.getPosition(newItem) == -1) {
-            mClassAdapter.add(newItem);
-            mClassAdapter.notifyDataSetChanged();
+       // wantToTake.add(currentClass);
+        //String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
+        Card newItem = new Card(getContext());
+
+        CardHeader cardHeader = new CardHeader(getContext());
+        cardHeader.setTitle(currentClass.getCourseID());
+
+        newItem.addCardHeader(cardHeader);
+
+        CardThumbnail cardThumbnail = new CardThumbnail(getContext());
+        cardThumbnail.setInnerLayout(R.layout.card_thumbnail);
+        cardThumbnail.setDrawableResource(R.drawable.testudo);
+
+
+        newItem.addCardThumbnail(cardThumbnail);
+
+
+        newItem.setSwipeable(true);
+        newItem.setId("xxx");
+        newItem.setTitle(currentClass.getInstructor());
+
+        //CardListView  listView = (CardListView)getActivity().findViewById(R.id.myList);
+        //Log.e("in OnAddingItemToClass ", (listView == null) + "" );
+
+        //TextView instructor = (TextView) listView.findViewById(R.id.list_item_pick_textview_instructor);
+        //course.setText(currentClass.getCourseID());
+        //instructor.setText(currentClass.getInstructor());
+        if ( !wantToTake.contains(currentClass)){
+            wantToTake.add(currentClass);
+            mCardArrayAdapter.add(newItem);
+            mCardArrayAdapter.notifyDataSetChanged();
 
             return true;
         } else {

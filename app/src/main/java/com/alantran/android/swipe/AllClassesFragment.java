@@ -198,7 +198,6 @@ public class AllClassesFragment extends Fragment {
 
     public class FetchClassesTask extends AsyncTask<String, Void, String> {
 
-
         @Override
         protected String doInBackground(String... params) {
 
@@ -210,9 +209,12 @@ public class AllClassesFragment extends Fragment {
             try {
                 String CLASS_BASE_URL = "http://api.umd.io/v0/courses?";
                 String DEPTID = "dept_id";
+                String PERPAGE = "per_page";
+                Integer page = 100;
 
                 Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
                         .appendQueryParameter(DEPTID, params[0])
+                        .appendQueryParameter(PERPAGE,page.toString())
                         .build();
 
                 URL url = new URL(builtUri.toString());
