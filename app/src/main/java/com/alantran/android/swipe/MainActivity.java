@@ -1,28 +1,39 @@
 package com.alantran.android.swipe;
 
-
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * The {@link PagerAdapter} that will provide
      * fragments for each of the sections. We use a
      * {@link FragmentPagerAdapter} derivative, which will keep every
      * loaded fragment in memory. If this becomes too memory intensive, it
      * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     * {@link FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -30,12 +41,16 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -51,10 +66,46 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         tabLayout.setupWithViewPager(mViewPager);
 
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
+        // retrieving data from preferences
+        SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String email = getPrefs.getString("email", "N/A!");
+        String major = getPrefs.getString("major", "N/A!");
+        String minor = getPrefs.getString("minor", "N/A!");
+        String upperlevel = getPrefs.getString("upperlevel", "N/A!");
+
+//       if(email != "N/A!") {
+//           Log.d("myApp", "Attained Email");
+//       }else{
+//           Log.d("myApp", "Did not retrieve Email");
+//       }
+//        if(major != "N/A!") {
+//            Log.d("myApp", "Attained major");
+//        }else{
+//            Log.d("myApp", "Did not retrieve major");
+//        }
+//        if(minor != "N/A!") {
+//            Log.d("myApp", "Attained minor");
+//        }else{
+//            Log.d("myApp", "Did not retrieve minor");
+//        }
+//        if(upperlevel != "N/A") {
+//            Log.d("myApp", "Attained upperlevel");
+//        }else{
+//            Log.d("myApp", "Did not retrieve upperlevel");
+//        }
+
 
 
 
     }
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -70,13 +121,16 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        //sets up preference page
         if (id == R.id.action_settings) {
+            Intent p = new Intent("android.intent.action.SETTINGSACTIVITY");
+            startActivity(p);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
 
     @Override
     public void onAddingItemToList(Classes currentClass, String fragName) {
@@ -97,6 +151,46 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
             f.onAddingItemToList(currentClass);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.alantran.android.swipe/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.alantran.android.swipe/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
     }
 
 
@@ -143,9 +237,8 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             }
             return null;
         }
-
+        }
 
     }
 
 
-}

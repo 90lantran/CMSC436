@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="listArray">
+        <item>Headings</item>
+        <item>Headings and Details</item>
+        <item>All Data</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+
+    <string-array name="major">
+        <item>Computer Science</item>
+        <item>Economics</item>
+        <item>Engineering</item>
+        <item>Math</item>
+    </string-array>
+
+    <string-array name="minor">
+        <item>N/A</item>
+        <item>Computer Science</item>
+        <item>Economics</item>
+        <item>Engineering</item>
+        <item>Math</item>
+    </string-array>
+
+    <string-array name="upperlevel">
+        <item>N/A</item>
+        <item>Computer Science</item>
+        <item>Economics</item>
+        <item>Engineering</item>
+        <item>Math</item>
+    </string-array>
+
+
+    <string-array name="day">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+    </string-array>
+
+</resources>
