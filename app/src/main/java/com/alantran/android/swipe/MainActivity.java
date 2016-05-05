@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         if (fragName.equals("pick")) {
             WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
             if (f == null) Log.e(LOG_TAG, "F is NULL");
-            if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
+            //if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
             if (f.onAddingItemToList(currentClass)){
                 // Make a toast
                 CharSequence text = "Added " + currentClass.getCourseID() + "to the list of classes for next semester";

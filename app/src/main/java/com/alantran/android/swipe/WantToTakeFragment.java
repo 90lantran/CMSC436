@@ -30,7 +30,6 @@ import it.gmariotti.cardslib.library.view.CardListView;
 public class WantToTakeFragment extends Fragment {
     String LOG_TAG = WantToTakeFragment.class.getSimpleName();
 
-    //ArrayAdapter<String> mClassAdapter ;
     CardArrayAdapter mCardArrayAdapter;
     List<Classes> wantToTake ;
 
@@ -58,33 +57,17 @@ public class WantToTakeFragment extends Fragment {
             listView.setAdapter(mCardArrayAdapter);
         }
 
-
-//        String[] data = {};
-//        List<String> classes = new ArrayList<String>(Arrays.asList(data));
-//
-//        mClassAdapter = new ArrayAdapter<String>(getActivity(),
-//                R.layout.list_item_want_to_take,
-//                R.id.list_item_textview,
-//                classes
-//        );
-//
-//        ListView mListView = (ListView) rootView.findViewById(R.id.listview_want_to_take);
-//
-//        mListView.setAdapter(mClassAdapter);
-//
-//
-//
         FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
 
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Classes[] wantToTakeClasses = composeSchedules();
+                Sections[] wantToTakeClasses = composeSchedules();
                 Intent intent = new Intent(getActivity(), DisplaySchedules.class);
                 //EditText editText = (EditText) findViewById(R.id.edit_message);
                 //String message = editText.getText().toString();
-                intent.putParcelableArrayListExtra("Schedule_list", new ArrayList<Classes>
+                intent.putParcelableArrayListExtra("Schedule_list", new ArrayList<Sections>
                         (Arrays.asList(wantToTakeClasses)));
                 startActivity(intent);
             }
@@ -97,27 +80,10 @@ public class WantToTakeFragment extends Fragment {
         return mCardArrayAdapter;
     }
 
-    public boolean onAddingItemToList(Classes currentClass) {
-       // wantToTake.add(currentClass);
+    public boolean onAddingItemToList(final Classes currentClass) {
+        // wantToTake.add(currentClass);
         //String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
-        Card newItem = new Card(getContext());
 
-        CardHeader cardHeader = new CardHeader(getContext());
-        cardHeader.setTitle(currentClass.getCourseID());
-
-        newItem.addCardHeader(cardHeader);
-
-        CardThumbnail cardThumbnail = new CardThumbnail(getContext());
-        cardThumbnail.setInnerLayout(R.layout.card_thumbnail);
-        cardThumbnail.setDrawableResource(R.drawable.testudo);
-
-
-        newItem.addCardThumbnail(cardThumbnail);
-
-
-        newItem.setSwipeable(true);
-        newItem.setId("xxx");
-        newItem.setTitle(currentClass.getInstructor());
 
         //CardListView  listView = (CardListView)getActivity().findViewById(R.id.myList);
         //Log.e("in OnAddingItemToClass ", (listView == null) + "" );
@@ -127,8 +93,40 @@ public class WantToTakeFragment extends Fragment {
         //instructor.setText(currentClass.getInstructor());
         if ( !wantToTake.contains(currentClass)){
             wantToTake.add(currentClass);
+            //for (Sections section :currentClass.getSectionsList()) {
+            Card newItem = new Card(getContext());
+
+            CardHeader cardHeader = new CardHeader(getContext());
+            cardHeader.setTitle(currentClass.getCourseID());
+            newItem.addCardHeader(cardHeader);
+
+            CardThumbnail cardThumbnail = new CardThumbnail(getContext());
+            cardThumbnail.setInnerLayout(R.layout.card_thumbnail);
+            cardThumbnail.setDrawableResource(R.drawable.testudo);
+            newItem.addCardThumbnail(cardThumbnail);
+
+
+            newItem.setSwipeable(true);
+            newItem.setId("xxx");
+            newItem.setTitle(currentClass.getInstructor() + "\n" +
+                            "This class has " + (int) Math.floor(currentClass.getSectionsList().size() / 2) + " sections"
+
+            );
+
+            newItem.setOnSwipeListener(new Card.OnSwipeListener() {
+                @Override
+                public void onSwipe(Card card) {
+                    Log.e(LOG_TAG, card.getTitle());
+                    mCardArrayAdapter.remove(card);
+                    mCardArrayAdapter.notifyDataSetChanged();
+                    wantToTake.remove(currentClass);
+                }
+            });
+
             mCardArrayAdapter.add(newItem);
             mCardArrayAdapter.notifyDataSetChanged();
+            //}
+
 
             return true;
         } else {
@@ -137,15 +135,41 @@ public class WantToTakeFragment extends Fragment {
 
     }
 
-    public Classes[] composeSchedules(){
+    public Sections[] composeSchedules(){
+
+
+        List<Sections> sections = new ArrayList<>();
+
+        // Pre-process classes with multiple sections
+        // need to separate sections without conflict
+        // wantToTakeSectionsList =
+        for(Classes klass : wantToTake){
+            if (klass.getSectionsList().size() > 2){
+                
+
+
+                for(int i = 0; i < klass.getSectionsList().size() - 1; i++ ){
+                    if (klass.getSectionsList().get(i).overLaps(klass.getSectionsList().get(i+1))>0){
+
+                    }else {
+
+                    }
+                }
+            }
+        }
+
+        for (Classes klass : wantToTake){
+            sections.addAll(klass.getSectionsList());
+        }
+        Sections[] sectionsWantToTake = sections.toArray(new Sections[sections.size()]);
+
+
         // convert time to sort by start time
-        //int numClass = mClassAdapter.getCount();
-        Classes[] wantToTakeArr = wantToTake.toArray(new Classes[wantToTake.size()]);
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mma");
-        for (Classes currentClass: wantToTakeArr ){
+        for (Sections currentSection: sections ){
             try {
-                currentClass.setStartTimeSimple(sdf.parse(currentClass.getStartTime()));
-                currentClass.setEndTimeSimple(sdf.parse(currentClass.getEndTime()));
+                currentSection.setStartTimeSimple(sdf.parse(currentSection.getStartTime()));
+                currentSection.setEndTimeSimple(sdf.parse(currentSection.getEndTime()));
 
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -153,9 +177,9 @@ public class WantToTakeFragment extends Fragment {
         }
 
         // sort by start time
-        Arrays.sort(wantToTakeArr, new Comparator<Classes>() {
+        Arrays.sort(sectionsWantToTake, new Comparator<Sections>() {
             @Override
-            public int compare(Classes lhs, Classes rhs) {
+            public int compare(Sections lhs, Sections rhs) {
                 return lhs.getStartTimeSimple().compareTo(rhs.getStartTimeSimple());
             }
         });
@@ -163,13 +187,13 @@ public class WantToTakeFragment extends Fragment {
         // color each class by the algorithm
 
 
-        for (int i = 0; i < wantToTakeArr.length; i++){
+        for (int i = 0; i < sectionsWantToTake.length; i++){
 
             Integer[] colors = new Integer[100];
             int counter = 0;
             for (int j = 0; j < i ; j++){
-                if (wantToTakeArr[j].overLaps(wantToTakeArr[i]) > 0){
-                    colors[counter] = wantToTakeArr[j].getColor();
+                if (sectionsWantToTake[j].overLaps(sectionsWantToTake[i]) > 0){
+                    colors[counter] = sectionsWantToTake[j].getColor();
                     counter ++;
                 }
             }
@@ -179,29 +203,29 @@ public class WantToTakeFragment extends Fragment {
             while(colors[index] != null){
                 index = index + 1;
             }
-            wantToTakeArr[i].setColor(index);
+            sectionsWantToTake[i].setColor(index);
 
-            Log.i(LOG_TAG,"class " + wantToTakeArr[i].getCourseID() +
-                    " color  " + wantToTakeArr[i].getColor() );
+            Log.i(LOG_TAG, "class " + sectionsWantToTake[i].getSectionID() +
+                    " color  " + sectionsWantToTake[i].getColor());
         }
 
 
         // after that class with same color will be in 1 schedule
 
         // sort by color
-        Arrays.sort(wantToTakeArr, new Comparator<Classes>() {
+        Arrays.sort(sectionsWantToTake, new Comparator<Sections>() {
             @Override
-            public int compare(Classes lhs, Classes rhs) {
+            public int compare(Sections lhs, Sections rhs) {
                 return lhs.getColor().compareTo(rhs.getColor());
             }
         });
 
-        for(int i = 0; i < wantToTakeArr.length; i++){
-            Log.i(LOG_TAG, wantToTakeArr[i].toString());
+        for(int i = 0; i < sectionsWantToTake.length; i++){
+            Log.i(LOG_TAG, sectionsWantToTake[i].toString());
             Log.i(LOG_TAG,"\n");
         }
 
-        return wantToTakeArr;
+        return sectionsWantToTake;
     }
 
 }

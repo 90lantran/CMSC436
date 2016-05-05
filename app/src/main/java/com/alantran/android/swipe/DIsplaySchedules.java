@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class DisplaySchedules extends AppCompatActivity {
-    private ArrayList<Classes> listClasses;
+    private ArrayList<Sections> listClasses;
     private ArrayList<String> schedules;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +31,7 @@ public class DisplaySchedules extends AppCompatActivity {
 //        });
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-         listClasses = getIntent().getParcelableArrayListExtra("Schedule_list");
+        // listClasses = getIntent().getParcelableArrayListExtra("Schedule_list");
         RecyclerView recyclerView = (RecyclerView)findViewById(R.id.all_schedules_recycler_view);
         recyclerView.setAdapter(new SchedulesRecyclerViewAdapter());
 //        for(Classes c : listClasses){
@@ -92,27 +92,27 @@ public class DisplaySchedules extends AppCompatActivity {
     private ArrayList<String> separateSchedules(){
         ArrayList<String> schedules = new ArrayList<>();
        ArrayList<Integer> divider = new ArrayList<>();
-
-           for(int i = 0; i < listClasses.size() - 1; i++){
-               if(listClasses.get(i).getColor() != listClasses.get(i+1).getColor()){
-                   divider.add(i);
-               }
-           }
-
-        int start = 0;
-        int end;
-        for(Integer d : divider) {
-            end = d;
-            int i;
-            String s = "";
-            for (i = start; i <= end; i++) {
-               s +=  (listClasses.get(i).getCourseID() + " "+listClasses.get(i).getBuilding() + " "+listClasses.get(i).getRoom() +
-                        " "+ listClasses.get(i).getStartTime() + " "+listClasses.get(i).getEndTime() + "\n");
-            }
-            schedules.add(s);
-            start = i;
-
-        }
+//
+//           for(int i = 0; i < listClasses.size() - 1; i++){
+//               if(listClasses.get(i).getColor() != listClasses.get(i+1).getColor()){
+//                   divider.add(i);
+//               }
+//           }
+//
+//        int start = 0;
+//        int end;
+//        for(Integer d : divider) {
+//            end = d;
+//            int i;
+//            String s = "";
+//            for (i = start; i <= end; i++) {
+//               s +=  (listClasses.get(i).getCourseID() + " "+listClasses.get(i).getBuilding() + " "+listClasses.get(i).getRoom() +
+//                        " "+ listClasses.get(i).getStartTime() + " "+listClasses.get(i).getEndTime() + "\n");
+//            }
+//            schedules.add(s);
+//            start = i;
+//
+//        }
         return schedules;
     }
 

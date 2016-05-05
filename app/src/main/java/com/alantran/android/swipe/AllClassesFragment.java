@@ -25,7 +25,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,8 +42,9 @@ public class AllClassesFragment extends Fragment {
     OnPickButtonClick mCallback;
 
     ArrayList<Classes> classes = new ArrayList<>();
-    Map<String, String> descriptions = new LinkedHashMap<>();
-    Map<String, String> classNames = new HashMap<>();
+    Map<String, String> descriptions = new LinkedHashMap<>();// courseID -> description
+    Map<String, String> classNames = new HashMap<>(); // courseID -> name
+    Map<String, Classes> classToSection = new LinkedHashMap<>();
 
 
     public AllClassesFragment() {
@@ -107,9 +107,9 @@ public class AllClassesFragment extends Fragment {
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
 
             holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
-            holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
-            holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
-            Log.i(LOG_TAG,"Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime() );
+//            holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
+//            holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
+//            Log.i(LOG_TAG,"Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime() );
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -118,6 +118,7 @@ public class AllClassesFragment extends Fragment {
 
 
             });
+
             final Button expandButton = holder.getExpandButton();
             holder.getExpandButton().setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -148,8 +149,8 @@ public class AllClassesFragment extends Fragment {
             private Button expandButton;
             private ViewGroup expandableLayout;
             private TextView instructor;
-            private TextView location;
-            private TextView time;
+            //private TextView location;
+            //private TextView time;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -159,8 +160,8 @@ public class AllClassesFragment extends Fragment {
                 expandButton = (Button) itemView.findViewById(R.id.expand_button);
                 expandableLayout = (ViewGroup) itemView.findViewById(R.id.expandable_layout);
                 instructor = (TextView) itemView.findViewById(R.id.instructor_textview);
-                location = (TextView) itemView.findViewById(R.id.location_textview);
-                time = (TextView) itemView.findViewById(R.id.time_textview);
+//                location = (TextView) itemView.findViewById(R.id.location_textview);
+//                time = (TextView) itemView.findViewById(R.id.time_textview);
             }
 
             public TextView getName() {
@@ -187,17 +188,19 @@ public class AllClassesFragment extends Fragment {
                 return instructor;
             }
 
-            public TextView getLocation() {
-                return location;
-            }
-            public TextView getTime() {
-                return time;
-            }
+//            public TextView getLocation() {
+//                return location;
+//            }
+//            public TextView getTime() {
+//                return time;
+//            }
         }
     }
 
-    public class FetchClassesTask extends AsyncTask<String, Void, String> {
 
+    // First make API call to http://api.umd.io/v0/courses?dept_id=CMSC&per_page=100 to get all
+    // course ID like CMSC100, name of class and description of class
+    public class FetchClassesTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
 
@@ -282,23 +285,32 @@ public class AllClassesFragment extends Fragment {
                 JSONObject klass = null;
                 try {
                     klass = classArray.getJSONObject(i);
-                    Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION) );
-                    descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
+                    Classes currentClass = new Classes();
+                    currentClass.setCourseID(klass.getString(COURSEID));
+                    //currentClass.setInstructor();
+                    currentClass.setName(klass.getString(NAME));
+                    currentClass.setDescription(klass.getString(DESCRIPTION));
+                    classes.add(currentClass);
+                    //Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION) );
+                    //descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
                     classNames.put(klass.getString(COURSEID), klass.getString(NAME));
+                    classToSection.put(klass.getString(COURSEID), currentClass);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
             }
-
-            Set<String> temp = descriptions.keySet();
-            new  FetchSectionsTask().execute( descriptions.keySet().toArray(new String[descriptions.keySet().size()]));
+            // make API call here to get detail section like instrcutor, time and building
+            Set<String> courseIDs = classNames.keySet();
+            new  FetchSectionsTask().execute(courseIDs.toArray(new String[courseIDs.size()]));
         }
 
-        public class FetchSectionsTask extends AsyncTask<String, Void, Classes[]> {
+        // Asynctask for sections
+        public class FetchSectionsTask extends AsyncTask<String, Void, Void> {
             StringBuilder sb = new StringBuilder();
-            private Classes[] getClassDataFromJson(String sectionJsonStr) throws JSONException {
-                String NUMBER = "number";
+            private void getSectionDataFromJson(String sectionJsonStr) throws JSONException {
+
                 String COURSE = "course";
                 String INSTRUCTOR = "instructors";
                 String MEETINGS = "meetings";
@@ -311,43 +323,62 @@ public class AllClassesFragment extends Fragment {
                 String SECTION_ID = "section_id";
 
                 JSONArray sectionArray = new JSONArray(sectionJsonStr);
-                Classes[] results = new Classes[sectionArray.length()];
+
+                //Sections[] results = new Sections[sectionArray.length()*2];
 
                 for (int i = 0; i < sectionArray.length(); i++) {
+
                     JSONObject section = sectionArray.getJSONObject(i);
-                    Classes currentClass = new Classes();
-                    currentClass.setCourseID(section.getString(SECTION_ID)); // CMSC132-0101
-                    currentClass.setName(classNames.get(section.getString(COURSE)));
-                    currentClass.setDescription(descriptions.get(section.getString(COURSE)));
-                    JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
-                    if (instructorArr.length() >= 1) {
-                        currentClass.setInstructor(instructorArr.get(0).toString());
+                    JSONArray meetings = section.getJSONArray(MEETINGS);
+                    Classes currentClass = classToSection.get(section.getString(COURSE));
+                    for (int j = 0; j < meetings.length(); j++) {
+                        Sections currentSection = new Sections();
+                        currentSection.setSectionID(section.getString(SECTION_ID)); // CMSC132-0101
+                        currentSection.setName(classNames.get(section.getString(COURSE)));
+                        //currentClass.setDescription(descriptions.get(section.getString(COURSE)));
+                        JSONArray instructorArr = section.getJSONArray(INSTRUCTOR);
+                        for(int k = 0; k < instructorArr.length(); k++){
+                            if (instructorArr.get(k).toString() == null){
+                                currentClass.setInstructor("Unknown");
+                                currentSection.setInstructor("Unknown");
+                            }else {
+                                currentClass.setInstructor(instructorArr.get(k).toString());
+                                currentSection.setInstructor(instructorArr.get(k).toString());
+                            }
+                        }
 
-                        JSONArray meetings = section.getJSONArray(MEETINGS);
-                        //for (int j = 0; j < meetings.length(); j++) {
-                        JSONObject meeting = meetings.getJSONObject(0);
-                        currentClass.setDays(meeting.getString(DAYS));
 
-                        currentClass.setStartTime(meeting.getString(START_TIME));
-                        currentClass.setEndTime(meeting.getString(END_TIME));
-                        currentClass.setBuilding(meeting.getString(BUILDING));
-                        currentClass.setRoom(meeting.getString(ROOM));
+                        JSONObject meeting = meetings.getJSONObject(j);
+
+                        currentSection.setDays(meeting.getString(DAYS));
+                        currentSection.setStartTime(meeting.getString(START_TIME));
+                        currentSection.setEndTime(meeting.getString(END_TIME));
+                        currentSection.setBuilding(meeting.getString(BUILDING));
+                        currentSection.setRoom(meeting.getString(ROOM));
+
+                        if (j == 0) currentSection.setClassType("Lecture");
+                        else {
+                            currentSection.setClassType(meeting.getString(CLASSTYPE));
+                        }
+
+                        currentClass.getSectionsList().add(currentSection);
+                        //results[i] = currentSection;
+                        //Log.i(LOG_TAG, results[i].toString());
+
                     }
-                    results[i] = currentClass;
-                    //}
-                    Log.i(LOG_TAG, results[i].toString());
+
+
                 }
-                return results;
+                //return results;
             }
 
             @Override
-            protected Classes[] doInBackground(String... params) {
+            protected Void doInBackground(String... params) {
                 String CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?";
                 String COURSE = "course";
-                List<Classes> list = new ArrayList<>();
+                String PERPAGE = "per_page";
+                //List<Sections> list = new ArrayList<>();
                 if (params == null) return null;
-
-
 
                 for(int i = 0 ; i < params.length; i++) {
                     HttpURLConnection urlConnection = null;
@@ -355,9 +386,9 @@ public class AllClassesFragment extends Fragment {
                     String sectionJsonStr = null;
                     try {
 
-
                         Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
                                 .appendQueryParameter(COURSE, params[i])
+                                .appendQueryParameter(PERPAGE, 50+"")
                                 .build();
 
                         URL url = new URL(builtUri.toString());
@@ -382,13 +413,14 @@ public class AllClassesFragment extends Fragment {
                         if (buffer.length() == 0) {
                             return null;
                         }
-                        Classes[] temp = getClassDataFromJson(buffer.toString());
-                        list.addAll(Arrays.asList(temp));
+                        getSectionDataFromJson(buffer.toString());
+                        //list.addAll(Arrays.asList(temp));
 
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "Error", e);
                     } catch (JSONException e) {
-                        Log.e(LOG_TAG, "Error parsing", e);
+                        Log.e(LOG_TAG, "Parsing", e);
+
                     } finally {
                         if (urlConnection != null) {
                             urlConnection.disconnect();
@@ -404,18 +436,25 @@ public class AllClassesFragment extends Fragment {
 
                 }
 
-                Classes[] arr = list.toArray(new Classes[list.size()]);
-                return arr;
+                //Sections[] arr = list.toArray(new Sections[list.size()]);
+                //return arr;
+                return null;
             }
 
             @Override
-            protected void onPostExecute(Classes[] strings) {
-                Log.e(LOG_TAG + "classes to display" , strings.length + "");
-                classes.addAll(Arrays.asList(strings));
+            protected void onPostExecute(Void aVoid) {
+                //super.onPostExecute(aVoid);
                 RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
                 view.setAdapter(new ClassesRecyclerViewAdapter());
-
             }
+//            @Override
+//            protected void onPostExecute(Sections[] sections) {
+//                Log.e(LOG_TAG + "classes to display", sections.length + "");
+//                //classes.addAll(Arrays.asList(strings));
+//                RecyclerView view = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
+//                view.setAdapter(new ClassesRecyclerViewAdapter());
+//
+//            }
         }
 
     }
