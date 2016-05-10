@@ -11,6 +11,18 @@ public class Classes {
     private String name;
     private String description;
     private String instructor;
+    private List<Sections> sectionsList = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Classes{" +
+                "courseID='" + courseID + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", instructor='" + instructor + '\'' +
+                ", sectionsList=" + sectionsList +
+                '}';
+    }
 
     public List<Sections> getSectionsList() {
         return sectionsList;
@@ -20,7 +32,7 @@ public class Classes {
         this.sectionsList = sectionsList;
     }
 
-    private List<Sections> sectionsList = new ArrayList<>();
+
 
     public String getDescription() {
         return description;

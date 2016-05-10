@@ -24,6 +24,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -310,6 +312,8 @@ public class AllClassesFragment extends Fragment {
         public class FetchSectionsTask extends AsyncTask<String, Void, Void> {
             StringBuilder sb = new StringBuilder();
             private void getSectionDataFromJson(String sectionJsonStr) throws JSONException {
+                // convert time to sort by start time
+                SimpleDateFormat sdf = new SimpleDateFormat("hh:mma");
 
                 String COURSE = "course";
                 String INSTRUCTOR = "instructors";
@@ -348,6 +352,7 @@ public class AllClassesFragment extends Fragment {
                         }
 
 
+
                         JSONObject meeting = meetings.getJSONObject(j);
 
                         currentSection.setDays(meeting.getString(DAYS));
@@ -356,6 +361,14 @@ public class AllClassesFragment extends Fragment {
                         currentSection.setBuilding(meeting.getString(BUILDING));
                         currentSection.setRoom(meeting.getString(ROOM));
 
+                        try {
+                            currentSection.setStartTimeSimple(sdf.parse(currentSection.getStartTime()));
+
+                            currentSection.setEndTimeSimple(sdf.parse(currentSection.getEndTime()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
                         if (j == 0) currentSection.setClassType("Lecture");
                         else {
                             currentSection.setClassType(meeting.getString(CLASSTYPE));
@@ -363,7 +376,7 @@ public class AllClassesFragment extends Fragment {
 
                         currentClass.getSectionsList().add(currentSection);
                         //results[i] = currentSection;
-                        //Log.i(LOG_TAG, results[i].toString());
+                        // Log.i(LOG_TAG, currentClass.toString());
 
                     }
 

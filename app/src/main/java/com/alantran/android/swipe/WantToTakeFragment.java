@@ -10,12 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardArrayAdapter;
@@ -137,45 +140,119 @@ public class WantToTakeFragment extends Fragment {
 
     public Sections[] composeSchedules(){
 
-
+        // sections will be all Lecture section
         List<Sections> sections = new ArrayList<>();
 
-        // Pre-process classes with multiple sections
-        // need to separate sections without conflict
-        // wantToTakeSectionsList =
-        for(Classes klass : wantToTake){
-            if (klass.getSectionsList().size() > 2){
-                
+
+        // Only add Lecture to sections
+        // lectureToDiscussion will map sectionID to Discussion section
+        // from Lecture sectionID, you can get back its Discussion section
 
 
-                for(int i = 0; i < klass.getSectionsList().size() - 1; i++ ){
-                    if (klass.getSectionsList().get(i).overLaps(klass.getSectionsList().get(i+1))>0){
+        Map<String, Sections> lectureToDiscussion = new LinkedHashMap<>();
 
+
+        // For each class, create a Map<Integer, List<Sections>>()
+        // Partition all sections of each class into group
+        // Integer is the group number
+        // List<Sections>: Lecture section which has conflict should be in the same group
+
+        List<Map<Integer,List<Sections>>> partitionLectures = new ArrayList<>();
+
+
+        for (Classes klass : wantToTake){
+
+            Map<Integer, List<Sections>> currentPartition = new TreeMap<>();
+
+
+            partitionLectures.add(currentPartition);
+
+            List<Sections> allCurrentSections = klass.getSectionsList();
+            int group = 0;
+            currentPartition.put(group, new ArrayList<Sections>());
+
+            for (int i = 0; i < allCurrentSections.size(); i++) {
+
+                // Lecture : will be compared to partition
+                // Discussion: will be map with its sectionID
+                if (allCurrentSections.get(i).getClassType().equals("Lecture")) {
+                    sections.add(allCurrentSections.get(i));
+                    if (i == 0){
+                        currentPartition.get(group).add(allCurrentSections.get(i));
                     }else {
+                        int currentGroupSize = currentPartition.get(group).size();
+                        Sections lastItemInGroup = currentPartition.get(group).get(currentGroupSize - 1);
+                        if(allCurrentSections.get(i).getStartTimeSimple().compareTo(lastItemInGroup.getStartTimeSimple()) == 0 ){
+                            currentPartition.get(group).add(allCurrentSections.get(i));
+                        } else {
+                            group++;
+                            currentPartition.put(group, new ArrayList<Sections>());
+                            currentPartition.get(group).add(allCurrentSections.get(i));
+                        }
 
                     }
+
+
+                } else if (allCurrentSections.get(i).getClassType().equals("Discussion")) {
+                    lectureToDiscussion.put(allCurrentSections.get(i).getSectionID(), allCurrentSections.get(i));
                 }
             }
         }
 
-        for (Classes klass : wantToTake){
-            sections.addAll(klass.getSectionsList());
+        // checking for separate lecture and discussion
+        for(Sections section : sections){
+            Log.i(LOG_TAG,"After separate lecture and discussion " + section.getSectionID() + " " + section.getClassType());
         }
-        Sections[] sectionsWantToTake = sections.toArray(new Sections[sections.size()]);
 
+        // checking partition
+        for(int i = 0; i < partitionLectures.size(); i++){
+            Log.i(LOG_TAG, "In partition " + i );
+            int group = 0;
+            for(Map.Entry<Integer, List<Sections>> entry : partitionLectures.get(i).entrySet()){
 
-        // convert time to sort by start time
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mma");
-        for (Sections currentSection: sections ){
-            try {
-                currentSection.setStartTimeSimple(sdf.parse(currentSection.getStartTime()));
-                currentSection.setEndTimeSimple(sdf.parse(currentSection.getEndTime()));
-
-            } catch (ParseException e) {
-                e.printStackTrace();
+                Iterator<Sections> it = entry.getValue().iterator();
+                while (it.hasNext()){
+                    Log.i(LOG_TAG, "In group " + group + " --- " +it.next().getSectionID());
+                }
+                group ++;
             }
         }
 
+
+        Collection<List<Sections>> currentResult = new ArrayList<>();
+        Collection<List<Sections>> updatedResult = new ArrayList<>();
+        for (int i = 0; i < partitionLectures.size(); i++){
+            if (i == 0){
+
+                currentResult = partitionLectures.get(i).values();
+            } else {
+                for(List<Sections> currentGroup : currentResult){
+                    for(List<Sections> nextGroup : partitionLectures.get(i).values()){
+                        Log.i(LOG_TAG, "Process group " + currentGroup.get(0).getSectionID());
+                        Log.i(LOG_TAG, "" + nextGroup.size());
+                        List<Sections> temp = new ArrayList<>(currentGroup);
+                        temp.addAll(nextGroup);
+                        updatedResult.add(temp);
+                    }
+                }
+                currentResult = updatedResult;
+            }
+        }
+
+
+       //  checking after combining all of the groups
+        int z = 0;
+        for (List<Sections> currentList : updatedResult){
+            Iterator<Sections> it = currentList.iterator();
+            Log.i(LOG_TAG,"List " + z++);
+            while(it.hasNext()){
+                Log.i(LOG_TAG, "" + it.next().getSectionID());
+            }
+        }
+
+
+
+        Sections[] sectionsWantToTake = sections.toArray(new Sections[sections.size()]);
         // sort by start time
         Arrays.sort(sectionsWantToTake, new Comparator<Sections>() {
             @Override
@@ -185,8 +262,6 @@ public class WantToTakeFragment extends Fragment {
         });
 
         // color each class by the algorithm
-
-
         for (int i = 0; i < sectionsWantToTake.length; i++){
 
             Integer[] colors = new Integer[100];
@@ -226,6 +301,50 @@ public class WantToTakeFragment extends Fragment {
         }
 
         return sectionsWantToTake;
+    }
+
+    private void nestedLoopOperation(int[] counters, int[] length, int level) {
+        if(level == counters.length) performOperation(counters);
+        else {
+            for (counters[level] = 0; counters[level] < length[level]; counters[level]++)
+                nestedLoopOperation(counters, length, level + 1);
+        }
+    }
+
+    private void performOperation(int[] counters) {
+        String counterAsString = "";
+        for (int level = 0; level < counters.length; level++) {
+            counterAsString = counterAsString + counters[level];
+            if (level < counters.length - 1) counterAsString = counterAsString + ",";
+        }
+        System.out.println(counterAsString);
+    }
+
+    private ArrayList<String> separateSchedules(){
+        ArrayList<String> schedules = new ArrayList<>();
+        ArrayList<Integer> divider = new ArrayList<>();
+//
+//           for(int i = 0; i < listClasses.size() - 1; i++){
+//               if(listClasses.get(i).getColor() != listClasses.get(i+1).getColor()){
+//                   divider.add(i);
+//               }
+//           }
+//
+//        int start = 0;
+//        int end;
+//        for(Integer d : divider) {
+//            end = d;
+//            int i;
+//            String s = "";
+//            for (i = start; i <= end; i++) {
+//               s +=  (listClasses.get(i).getCourseID() + " "+listClasses.get(i).getBuilding() + " "+listClasses.get(i).getRoom() +
+//                        " "+ listClasses.get(i).getStartTime() + " "+listClasses.get(i).getEndTime() + "\n");
+//            }
+//            schedules.add(s);
+//            start = i;
+//
+//        }
+        return schedules;
     }
 
 }

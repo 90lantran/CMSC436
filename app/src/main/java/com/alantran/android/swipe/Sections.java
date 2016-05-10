@@ -25,6 +25,24 @@ public class Sections implements Parcelable {
     private Date endTimeSimple;
     private Integer color = -1;
 
+
+    @Override
+    public String toString() {
+        return "Sections{" +
+                "sectionID='" + sectionID + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", instructor='" + instructor + '\'' +
+                ", building='" + building + '\'' +
+                ", color=" + color +
+                ", classType='" + classType + '\'' +
+                ", days='" + days + '\'' +
+                ", room='" + room + '\'' +
+                '}';
+    }
+
+
+
     public Sections(String courseID, String name, String description) {
         this.sectionID = courseID;
         this.name = name;
@@ -138,17 +156,6 @@ public class Sections implements Parcelable {
         this.name = name;
     }
 
-
-    @Override
-    public String toString() {
-        return "Sections{" +
-                "sectionID='" + sectionID + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", color=" + color +
-                ", classType='" + classType + '\'' +
-                '}';
-    }
 
     public int overLaps(Sections other) {
         return this.getEndTimeSimple().compareTo(other.getStartTimeSimple());
