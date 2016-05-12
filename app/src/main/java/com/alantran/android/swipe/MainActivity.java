@@ -1,6 +1,7 @@
 package com.alantran.android.swipe;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,7 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        AllClassesFragment.OnPickButtonClick, NavigationView.OnNavigationItemSelectedListener {
     String LOG_TAG = MainActivity.class.getSimpleName();
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -97,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             //if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
             if (f.onAddingItemToList(currentClass)){
                 // Make a toast
-                CharSequence text = "Added " + currentClass.getCourseID() + "to the list of classes for next semester";
+                CharSequence text = "Added " + currentClass.getCourseID() + " to the list of classes for next semester";
 
                 Toast toast = Toast.makeText(getApplicationContext(),text, Toast.LENGTH_SHORT);
                 toast.show();
@@ -114,7 +117,30 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        return false;
+
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_user_info) {
+            Intent intent = new Intent(MainActivity.this,UserInfo.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_create_new_schedule) {
+            Intent intent = new Intent(MainActivity.this,MainActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_recent_view_schedule) {
+            Intent intent = new Intent(MainActivity.this,DisplaySchedules.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_manage) {
+
+        } else if (id == R.id.nav_share) {
+
+        } else if (id == R.id.nav_send) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
 

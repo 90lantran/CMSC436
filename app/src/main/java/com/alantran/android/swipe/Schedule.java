@@ -1,11 +1,14 @@
 package com.alantran.android.swipe;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 /**
  * Created by alantran on 5/7/16.
  */
-public class Schedule {
+public class Schedule  implements Parcelable{
     List<Sections> sectionsList;
     int num;
 
@@ -31,4 +34,41 @@ public class Schedule {
 
     }
 
+    // Parcelable
+
+    protected Schedule(Parcel in) {
+        sectionsList = in.createTypedArrayList(Sections.CREATOR);
+        num = in.readInt();
+    }
+
+    public static final Creator<Schedule> CREATOR = new Creator<Schedule>() {
+        @Override
+        public Schedule createFromParcel(Parcel in) {
+            return new Schedule(in);
+        }
+
+        @Override
+        public Schedule[] newArray(int size) {
+            return new Schedule[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeTypedList(sectionsList);
+        dest.writeInt(num);
+    }
+
+    @Override
+    public String toString() {
+        return "Schedule{" +
+                "sectionsList=" + sectionsList +
+                ", num=" + num +
+                '}';
+    }
 }

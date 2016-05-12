@@ -11,6 +11,7 @@ public class Classes {
     private String name;
     private String description;
     private String instructor;
+    private String credit;
     private List<Sections> sectionsList = new ArrayList<>();
 
     @Override
@@ -32,7 +33,12 @@ public class Classes {
         this.sectionsList = sectionsList;
     }
 
-
+    public String getCredit() {
+        return credit;
+    }
+    public void setCredit(String credit) {
+        this.credit = credit;
+    }
 
     public String getDescription() {
         return description;

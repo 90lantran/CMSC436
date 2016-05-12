@@ -28,17 +28,10 @@ public class Sections implements Parcelable {
 
     @Override
     public String toString() {
-        return "Sections{" +
-                "sectionID='" + sectionID + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", instructor='" + instructor + '\'' +
-                ", building='" + building + '\'' +
-                ", color=" + color +
-                ", classType='" + classType + '\'' +
-                ", days='" + days + '\'' +
-                ", room='" + room + '\'' +
-                '}';
+        return
+                sectionID + "\n" +
+                        classType +": " + days + " " + startTime  + " "+ endTime + "\n"
+                    + building + " "+room + ", color=" + color + "\n";
     }
 
 
@@ -50,6 +43,18 @@ public class Sections implements Parcelable {
     }
 
     public Sections() {
+
+    }
+
+    public Sections(String sectionID, String classType ,String days, String startTime, String endTime, String building, String room
+    ){
+        this.sectionID = sectionID;
+        this.classType = classType;
+        this.days = days;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.building = building;
+        this.room = room;
 
     }
 

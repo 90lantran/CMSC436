@@ -3,17 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_create_new_schedule"
 
-            android:title="Import" />
+            android:title="Create new schedule" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_recent_view_schedule"
 
-            android:title="Gallery" />
+            android:title="Recent view" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_user_info"
 
-            android:title="Slideshow" />
+            android:title="User Infor" />
         <item
             android:id="@+id/nav_manage"
 

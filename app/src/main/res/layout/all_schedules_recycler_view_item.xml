@@ -30,10 +30,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="100dp"
                     android:id="@+id/schedule_image"
                     android:src="@drawable/low4"/>
                 <TextView
-                    android:id="@+id/class_name"
+                    android:id="@+id/schedule_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -41,8 +43,7 @@
                     android:textColor="@color/textColor"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textStyle="bold"
-                    android:padding="10dp"
-                    android:text="Schedule"/>
+                    android:padding="10dp" />
 
             </RelativeLayout>
 
@@ -52,16 +53,16 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:padding="8dp"/>
-            <TextView
-                android:id="@+id/schedule_location_textview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="8dp"/>
-            <TextView
-                android:id="@+id/schdule_time_textview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"/>
+            <!--<TextView-->
+                <!--android:id="@+id/schedule_location_textview"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingLeft="8dp"/>-->
+            <!--<TextView-->
+                <!--android:id="@+id/schdule_time_textview"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"/>-->
 
 
         </LinearLayout>

@@ -35,6 +35,9 @@ public class WantToTakeFragment extends Fragment {
 
     CardArrayAdapter mCardArrayAdapter;
     List<Classes> wantToTake ;
+    List<Map<Integer,List<Sections>>> partitionLectures;
+    ArrayList<Schedule> schedules ;
+    int num;
 
     public WantToTakeFragment() {
         // Required empty public constructor
@@ -66,12 +69,11 @@ public class WantToTakeFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Sections[] wantToTakeClasses = composeSchedules();
+                composeSchedules();
                 Intent intent = new Intent(getActivity(), DisplaySchedules.class);
-                //EditText editText = (EditText) findViewById(R.id.edit_message);
-                //String message = editText.getText().toString();
-                intent.putParcelableArrayListExtra("Schedule_list", new ArrayList<Sections>
-                        (Arrays.asList(wantToTakeClasses)));
+//                //EditText editText = (EditText) findViewById(R.id.edit_message);
+//                //String message = editText.getText().toString();
+                intent.putParcelableArrayListExtra("Schedule_list", schedules);
                 startActivity(intent);
             }
         });
@@ -123,6 +125,8 @@ public class WantToTakeFragment extends Fragment {
                     mCardArrayAdapter.remove(card);
                     mCardArrayAdapter.notifyDataSetChanged();
                     wantToTake.remove(currentClass);
+                    Log.i(LOG_TAG, "Remove " + currentClass.getCourseID() + "from lis of class want to take");
+                    Log.i(LOG_TAG,"The list of classes want to take " + wantToTake.size());
                 }
             });
 
@@ -138,32 +142,27 @@ public class WantToTakeFragment extends Fragment {
 
     }
 
-    public Sections[] composeSchedules(){
+    public void composeSchedules(){
+        Log.i(LOG_TAG, "In composeSchedules()");
+        Log.i(LOG_TAG,"there are " + wantToTake.size() + " classes you want to take");
 
-        // sections will be all Lecture section
+//        for(Classes c : wantToTake){
+//            System.out.println(c);
+//        }
+
+        // sections will be all Lecture
         List<Sections> sections = new ArrayList<>();
-
 
         // Only add Lecture to sections
         // lectureToDiscussion will map sectionID to Discussion section
         // from Lecture sectionID, you can get back its Discussion section
+        Map<String, Sections> lectureToDiscussion = new LinkedHashMap<>(); // map lecture to discussion
 
-
-        Map<String, Sections> lectureToDiscussion = new LinkedHashMap<>();
-
-
-        // For each class, create a Map<Integer, List<Sections>>()
-        // Partition all sections of each class into group
-        // Integer is the group number
-        // List<Sections>: Lecture section which has conflict should be in the same group
-
-        List<Map<Integer,List<Sections>>> partitionLectures = new ArrayList<>();
-
+        partitionLectures = new ArrayList<>();
 
         for (Classes klass : wantToTake){
 
             Map<Integer, List<Sections>> currentPartition = new TreeMap<>();
-
 
             partitionLectures.add(currentPartition);
 
@@ -225,17 +224,20 @@ public class WantToTakeFragment extends Fragment {
             if (i == 0){
 
                 currentResult = partitionLectures.get(i).values();
+                updatedResult = currentResult;
             } else {
+                updatedResult = new ArrayList<>();
                 for(List<Sections> currentGroup : currentResult){
+
                     for(List<Sections> nextGroup : partitionLectures.get(i).values()){
-                        Log.i(LOG_TAG, "Process group " + currentGroup.get(0).getSectionID());
-                        Log.i(LOG_TAG, "" + nextGroup.size());
+                       // Log.i(LOG_TAG, "Process group " + currentGroup.get(0).getSectionID());
+                        //Log.i(LOG_TAG, "" + nextGroup.size());
                         List<Sections> temp = new ArrayList<>(currentGroup);
                         temp.addAll(nextGroup);
                         updatedResult.add(temp);
                     }
                 }
-                currentResult = updatedResult;
+                currentResult = new ArrayList<>(updatedResult);
             }
         }
 
@@ -246,12 +248,17 @@ public class WantToTakeFragment extends Fragment {
             Iterator<Sections> it = currentList.iterator();
             Log.i(LOG_TAG,"List " + z++);
             while(it.hasNext()){
-                Log.i(LOG_TAG, "" + it.next().getSectionID());
+                Log.i(LOG_TAG, "Combined group " + it.next().getSectionID());
             }
         }
+        schedules = new ArrayList<>();
+        num = 1;
+        for (List<Sections> currentList : updatedResult){
+                coloringAlgor(currentList);
+        }
+    }
 
-
-
+    private void coloringAlgor(List<Sections> sections){
         Sections[] sectionsWantToTake = sections.toArray(new Sections[sections.size()]);
         // sort by start time
         Arrays.sort(sectionsWantToTake, new Comparator<Sections>() {
@@ -264,7 +271,7 @@ public class WantToTakeFragment extends Fragment {
         // color each class by the algorithm
         for (int i = 0; i < sectionsWantToTake.length; i++){
 
-            Integer[] colors = new Integer[100];
+            Integer[] colors = new Integer[50];
             int counter = 0;
             for (int j = 0; j < i ; j++){
                 if (sectionsWantToTake[j].overLaps(sectionsWantToTake[i]) > 0){
@@ -280,8 +287,8 @@ public class WantToTakeFragment extends Fragment {
             }
             sectionsWantToTake[i].setColor(index);
 
-            Log.i(LOG_TAG, "class " + sectionsWantToTake[i].getSectionID() +
-                    " color  " + sectionsWantToTake[i].getColor());
+//            Log.i(LOG_TAG, "class " + sectionsWantToTake[i].getSectionID() +
+//                    " color  " + sectionsWantToTake[i].getColor());
         }
 
 
@@ -295,56 +302,56 @@ public class WantToTakeFragment extends Fragment {
             }
         });
 
-        for(int i = 0; i < sectionsWantToTake.length; i++){
-            Log.i(LOG_TAG, sectionsWantToTake[i].toString());
-            Log.i(LOG_TAG,"\n");
+        Log.i(LOG_TAG, "After sorting by color");
+        for (int i = 0; i < sectionsWantToTake.length; i++) {
+            Log.i(LOG_TAG, "class " + sectionsWantToTake[i].getSectionID() +
+                    " color  " + sectionsWantToTake[i].getColor() + " start " + sectionsWantToTake[i].getStartTime()
+             + " end " + sectionsWantToTake[i].getEndTime());
         }
 
-        return sectionsWantToTake;
-    }
-
-    private void nestedLoopOperation(int[] counters, int[] length, int level) {
-        if(level == counters.length) performOperation(counters);
-        else {
-            for (counters[level] = 0; counters[level] < length[level]; counters[level]++)
-                nestedLoopOperation(counters, length, level + 1);
-        }
-    }
-
-    private void performOperation(int[] counters) {
-        String counterAsString = "";
-        for (int level = 0; level < counters.length; level++) {
-            counterAsString = counterAsString + counters[level];
-            if (level < counters.length - 1) counterAsString = counterAsString + ",";
-        }
-        System.out.println(counterAsString);
-    }
-
-    private ArrayList<String> separateSchedules(){
-        ArrayList<String> schedules = new ArrayList<>();
-        ArrayList<Integer> divider = new ArrayList<>();
-//
-//           for(int i = 0; i < listClasses.size() - 1; i++){
-//               if(listClasses.get(i).getColor() != listClasses.get(i+1).getColor()){
-//                   divider.add(i);
-//               }
-//           }
-//
-//        int start = 0;
-//        int end;
-//        for(Integer d : divider) {
-//            end = d;
-//            int i;
-//            String s = "";
-//            for (i = start; i <= end; i++) {
-//               s +=  (listClasses.get(i).getCourseID() + " "+listClasses.get(i).getBuilding() + " "+listClasses.get(i).getRoom() +
-//                        " "+ listClasses.get(i).getStartTime() + " "+listClasses.get(i).getEndTime() + "\n");
-//            }
-//            schedules.add(s);
-//            start = i;
-//
+        // Checking
+//        for(int i = 0; i < sectionsWantToTake.length; i++){
+//            Log.i(LOG_TAG, sectionsWantToTake[i].toString());
+//            Log.i(LOG_TAG,"\n");
 //        }
-        return schedules;
+
+
+        separateSchedules(sectionsWantToTake);
+
+    }
+
+
+    private void separateSchedules(Sections[] listClasses){
+        Log.i(LOG_TAG,"In separateSchedules()");
+
+        List<Sections> subSchdule = new ArrayList<>();
+        subSchdule.add(listClasses[0]);
+        if (listClasses.length == 1){
+            if (subSchdule.size() == partitionLectures.size()) {
+                schedules.add(new Schedule(num++, subSchdule));
+            }
+        } else {
+            for (int i = 1; i < listClasses.length; i++) {
+                if (listClasses[i].getColor() == listClasses[i-1].getColor()) {
+                    subSchdule.add(listClasses[i]);
+                    if (subSchdule.size() == partitionLectures.size()) {
+                        schedules.add(new Schedule(num++, subSchdule));
+                    }
+                } else {
+//                    if (subSchdule.size() == partitionLectures.size()) {
+//                        schedules.add(new Schedule(num++, subSchdule));
+//                    }
+                    subSchdule = new ArrayList<>();
+                    subSchdule.add(listClasses[i]);
+                }
+            }
+        }
+
+
+
+
+
+
     }
 
 }

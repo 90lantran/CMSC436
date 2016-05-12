@@ -30,6 +30,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scaleType="centerCrop"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="100dp"
                     android:id="@+id/image"
                     android:src="@drawable/low4"/>
             <TextView
@@ -52,15 +54,15 @@
                 android:textStyle="bold"
                 android:padding="8dp"/>
             <TextView
-                android:id="@+id/location_textview"
+                android:id="@+id/credit_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"/>
-            <TextView
-                android:id="@+id/time_textview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"/>
+            <!--<TextView-->
+                <!--android:id="@+id/time_textview"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"/>-->
 
             <RelativeLayout
                 android:layout_width="match_parent"
