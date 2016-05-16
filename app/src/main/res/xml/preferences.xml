@@ -7,7 +7,6 @@
     <EditTextPreference
         android:key="email"
         android:title="@string/Title1"
-        android:summary="@string/Summary1"
         android:defaultValue="@string/Summary1"/>
 
     </PreferenceCategory>
@@ -24,7 +23,6 @@
         android:dialogTitle="@string/Title2"
         android:entries="@array/major"
         android:entryValues="@array/major"
-        android:summary="@string/Summary2"
         android:defaultValue="@string/Title2" />
 
     <ListPreference
@@ -33,7 +31,6 @@
         android:title="@string/Title3"
         android:dialogTitle="@string/Title3"
         android:entries="@array/minor"
-        android:summary="@string/Summary3"
         android:entryValues="@array/minor"
         android:defaultValue="@string/Title3" />
 
@@ -44,7 +41,6 @@
         android:title="@string/Title4"
         android:dialogTitle="@string/Title4"
         android:entries="@array/upperlevel"
-        android:summary="@string/Summary4"
         android:entryValues="@array/upperlevel"
         android:defaultValue="@string/Title4" />
 
@@ -58,13 +54,18 @@
         android:title="@string/Title5"
         android:dialogTitle="@string/Title5"
         android:entries="@array/day"
-        android:summary="@string/Summary5"
         android:entryValues="@array/day"
         android:defaultValue="@string/Title5" />
 
+
+        <com.alantran.android.swipe.TimePreference
+            android:key="StartTime"
+            android:title="@string/timePrefA_title"/>
+        <com.alantran.android.swipe.TimePreference
+            android:key="timePrefB_Key"
+            android:title="@string/timePrefB_title"/>
+
     </PreferenceCategory>
-
-
 
 
 </PreferenceScreen>

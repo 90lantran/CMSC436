@@ -92,9 +92,12 @@
     <string name="Summary2">Please Enter Your Major</string>
     <string name="Title3">Minor:</string>
     <string name="Summary3">Please Enter Your Minor</string>
-    <string name="Title4">Upper Level:</string>
+    <string name="Title4">Upper Level Concentration:</string>
     <string name="Summary4">Please Enter Your Upper Level Concentration</string>
-    <string name="Title5">Day:</string>
+    <string name="Title5">Day of the Week:</string>
     <string name="Summary5">Pick The Days Of The Week</string>
 
+    <string name="editTextPref_title">Pick The Days Of The Week</string>
+    <string name="timePrefA_title">Starting Time:</string>
+    <string name="timePrefB_title">Ending Time:</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.alantran.android.swipe;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -15,7 +16,9 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +27,10 @@ import android.widget.Button;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+
+import org.xmlpull.v1.XmlPullParser;
+
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
@@ -73,10 +80,51 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
         // retrieving data from preferences
         SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        String email = getPrefs.getString("email", "N/A!");
+        String email = getPrefs.getString("email", "N/A");
         String major = getPrefs.getString("major", "N/A!");
         String minor = getPrefs.getString("minor", "N/A!");
         String upperlevel = getPrefs.getString("upperlevel", "N/A!");
+        Set<String> day = getPrefs.getStringSet("Title5", null);
+
+        Context context = getBaseContext();
+       SharedPreferences sharedPref = context.getSharedPreferences(
+                getString(R.string.timePrefA_title), Context.MODE_PRIVATE);
+
+        String time = sharedPref.getString("StartTime", "N/A!");
+
+        Log.d("myApp", "========================");
+       if(time != "N/A!") {
+           Log.d("myApp", time);
+       }else{
+           Log.d("myApp", "Fail");
+       }
+
+//
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        String time = getPrefs.getString("startTime","08:00");
+
+//        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        String[] time = prefs.getString("startTime","08:00").split(":");
+//
+//        Log.d("MyApp", "============================");
+//        for(int idx=0; idx< time.length;idx++){
+//            Log.d("MyApp", time[idx]);
+//        }
+
+//        XmlPullParser parser = resources.getXml(myResource);
+//        AttributeSet attributes = Xml.asAttributeSet(parser);
+
+//        TimePreference info = new TimePreference(this);
+//        Log.d("MyApp", "------------------------------");
+//        Log.d("MyApp", info.getInfo());
+      //  info.getTime();
+//        String time = getPrefs.getString("startTime", "N/A!");
+//        Log.d("MyApp", "============================");
+//        if(time !="N/A!"){
+//                Log.d("MyApp", time.toString());
+//        }
+
+//        String day = getPrefs.getString("Title5", "N/A!");
 
 //       if(email != "N/A!") {
 //           Log.d("myApp", "Attained Email");
@@ -98,10 +146,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 //        }else{
 //            Log.d("myApp", "Did not retrieve upperlevel");
 //        }
-
-
-
-
     }
 
 
