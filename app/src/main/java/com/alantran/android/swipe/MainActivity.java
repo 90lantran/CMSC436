@@ -85,7 +85,9 @@ public class MainActivity extends AppCompatActivity implements
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(UserInfo.class);
+//            Intent p = new Intent("android.intent.action.USERINFO");
+//            startActivity(p);
+            Intent intent = new Intent(MainActivity.this,UserInfo.class);
             startActivity(intent);
             return true;
         }

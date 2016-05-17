@@ -45,6 +45,10 @@
             android:label="@string/title_activity_user_info"
             android:parentActivityName=".DisplaySchedules"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.USERINFO" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.alantran.android.swipe.MainActivity" />
