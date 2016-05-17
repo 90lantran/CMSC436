@@ -11,8 +11,8 @@
         android:src="@drawable/testudo"
         android:id="@+id/testudo"
         android:adjustViewBounds="true"
-        android:maxWidth="100dp"
-        android:maxHeight="100dp"
+        android:maxWidth="70dp"
+        android:maxHeight="70dp"
         android:scaleType="fitCenter"
         android:paddingLeft="20dp"/>
 
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_pick_textview_course"
-            android:text="hello"
+
             android:padding="10dp"
             android:layout_gravity="center" />
 
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/list_item_pick_textview_instructor"
-            android:text="bye"
+
             android:layout_gravity="center" />
 
     </LinearLayout>

@@ -8,9 +8,9 @@ import java.util.List;
 /**
  * Created by alantran on 5/7/16.
  */
-public class Schedule  implements Parcelable{
-    List<Sections> sectionsList;
-    int num;
+public class Schedule implements Parcelable{
+    private List<Sections> sectionsList;
+    private int num;
 
     public int getNum() {
         return num;

@@ -30,8 +30,7 @@ public class Sections implements Parcelable {
     public String toString() {
         return
                 sectionID + "\n" +
-                        classType +": " + days + " " + startTime  + " "+ endTime + "\n"
-                    + building + " "+room + ", color=" + color + "\n";
+                        classType +": " + days + " " + startTime  + " "+ endTime + ", " +building + " "+room +  "\n" ;
     }
 
 
@@ -46,7 +45,7 @@ public class Sections implements Parcelable {
 
     }
 
-    public Sections(String sectionID, String classType ,String days, String startTime, String endTime, String building, String room
+    public Sections(String sectionID, String classType, String days, String startTime, String endTime, String building, String room
     ){
         this.sectionID = sectionID;
         this.classType = classType;
@@ -206,7 +205,7 @@ public class Sections implements Parcelable {
         dest.writeInt(color);
     }
 
-    public static final Parcelable.Creator<Sections> CREATOR = new Parcelable.Creator<Sections>() {
+    public static final Creator<Sections> CREATOR = new Creator<Sections>() {
         public Sections createFromParcel(Parcel in) {
             return new Sections(in);
         }

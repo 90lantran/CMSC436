@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -48,7 +49,7 @@ public class AllClassesFragment extends Fragment {
     Map<String, String> descriptions = new LinkedHashMap<>();// courseID -> description
     Map<String, String> classNames = new HashMap<>(); // courseID -> name
     Map<String, Classes> classToSection = new LinkedHashMap<>();//
-
+    private String time ;
 
     public AllClassesFragment() {
         // Required empty public constructor
@@ -56,6 +57,23 @@ public class AllClassesFragment extends Fragment {
 
     public interface OnPickButtonClick {
         public void onAddingItemToList(Classes currentClass, String fragName);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("List of Classes", classes);
+        Log.i(LOG_TAG, "onSaveInstanceState -----");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            classes = savedInstanceState.getParcelableArrayList("List of Classes");
+        }
+
+        Log.i(LOG_TAG, "ActivityCreated -----");
     }
 
     @Override
@@ -80,9 +98,11 @@ public class AllClassesFragment extends Fragment {
         FetchClassesTask task = new FetchClassesTask();
         String major = "CMSC"; // default
         SharedPreferences settings = getActivity().getSharedPreferences("UserInfo", 0);
-        if (!settings.getString("Major","").equals("CMSC")){
-            major = settings.getString("Major", "").toString();
+        if (settings.getString("Major", "CMSC") != null){
+            major = settings.getString("Major", "CMSC").toString();
         }
+        time = settings.getString("Time", "");
+        Log.i(LOG_TAG, "VALUE OF time is " + time);
         task.execute(major);
         return rootView;
     }
@@ -113,8 +133,11 @@ public class AllClassesFragment extends Fragment {
             final Classes currentClass = classes.get(position);
             holder.getDescription().setText(currentClass.getDescription());
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
-
-            holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
+            if (currentClass.getInstructor() != null && currentClass.getInstructor().contains("TBA")){
+                holder.getInstructor().setText(currentClass.getInstructor());
+            } else {
+                holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
+            }
             holder.getCredits().setText("Credits: " + currentClass.getCredit());
 //            holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
 //            Log.i(LOG_TAG,"Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime() );
@@ -401,7 +424,12 @@ public class AllClassesFragment extends Fragment {
 
             @Override
             protected Void doInBackground(String... params) {
-                String CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?";
+                String CLASS_BASE_URL;
+                if (time.equals("")) {
+                    CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?";
+                } else {
+                    CLASS_BASE_URL = "http://api.umd.io/v0/courses/sections?start_time>" + time +"am";
+                }
                 String COURSE = "course";
                 String PERPAGE = "per_page";
                 //List<Sections> list = new ArrayList<>();

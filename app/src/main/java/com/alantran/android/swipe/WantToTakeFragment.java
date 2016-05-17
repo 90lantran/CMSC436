@@ -37,6 +37,7 @@ public class WantToTakeFragment extends Fragment {
     List<Classes> wantToTake ;
     List<Map<Integer,List<Sections>>> partitionLectures;
     ArrayList<Schedule> schedules ;
+    Map<String, Sections> lectureToDiscussion;
     int num;
 
     public WantToTakeFragment() {
@@ -86,17 +87,20 @@ public class WantToTakeFragment extends Fragment {
     }
 
     public boolean onAddingItemToList(final Classes currentClass) {
-        // wantToTake.add(currentClass);
-        //String newItem = currentClass.getCourseID() + " with " + currentClass.getInstructor();
 
-
-        //CardListView  listView = (CardListView)getActivity().findViewById(R.id.myList);
-        //Log.e("in OnAddingItemToClass ", (listView == null) + "" );
-
-        //TextView instructor = (TextView) listView.findViewById(R.id.list_item_pick_textview_instructor);
-        //course.setText(currentClass.getCourseID());
-        //instructor.setText(currentClass.getInstructor());
         if ( !wantToTake.contains(currentClass)){
+            char firstDigit = currentClass.getCourseID().charAt(currentClass.getCourseID().length() - 3);
+
+            for(Classes c : wantToTake){
+                String courseID = c.getCourseID();
+               char secondDigit = courseID.charAt(courseID.length() - 3);
+                if (firstDigit - secondDigit != 0){
+
+                    return false;
+                }
+            }
+
+
             wantToTake.add(currentClass);
             //for (Sections section :currentClass.getSectionsList()) {
             Card newItem = new Card(getContext());
@@ -113,8 +117,10 @@ public class WantToTakeFragment extends Fragment {
 
             newItem.setSwipeable(true);
             newItem.setId("xxx");
+            int temp = (int) Math.floor(currentClass.getSectionsList().size() / 2);
+            if (temp == 0) temp ++;
             newItem.setTitle(currentClass.getInstructor() + "\n" +
-                            "This class has " + (int) Math.floor(currentClass.getSectionsList().size() / 2) + " sections"
+                            "This class has " + temp + " sections"
 
             );
 
@@ -132,8 +138,6 @@ public class WantToTakeFragment extends Fragment {
 
             mCardArrayAdapter.add(newItem);
             mCardArrayAdapter.notifyDataSetChanged();
-            //}
-
 
             return true;
         } else {
@@ -156,7 +160,7 @@ public class WantToTakeFragment extends Fragment {
         // Only add Lecture to sections
         // lectureToDiscussion will map sectionID to Discussion section
         // from Lecture sectionID, you can get back its Discussion section
-        Map<String, Sections> lectureToDiscussion = new LinkedHashMap<>(); // map lecture to discussion
+        lectureToDiscussion = new LinkedHashMap<>(); // map lecture to discussion
 
         partitionLectures = new ArrayList<>();
 
@@ -254,6 +258,7 @@ public class WantToTakeFragment extends Fragment {
         schedules = new ArrayList<>();
         num = 1;
         for (List<Sections> currentList : updatedResult){
+
                 coloringAlgor(currentList);
         }
     }
@@ -327,31 +332,66 @@ public class WantToTakeFragment extends Fragment {
         List<Sections> subSchdule = new ArrayList<>();
         subSchdule.add(listClasses[0]);
         if (listClasses.length == 1){
-            if (subSchdule.size() == partitionLectures.size()) {
-                schedules.add(new Schedule(num++, subSchdule));
+            if (subSchdule.size() == partitionLectures.size() ) {
+                subSchdule = addingDiscussion(subSchdule);
+                if (!isConflict(subSchdule)) {
+                    schedules.add(new Schedule(num++, subSchdule));
+                }
+
             }
         } else {
             for (int i = 1; i < listClasses.length; i++) {
                 if (listClasses[i].getColor() == listClasses[i-1].getColor()) {
                     subSchdule.add(listClasses[i]);
+                    if (subSchdule.size() == partitionLectures.size() ) {
+                        subSchdule = addingDiscussion(subSchdule);
+                        if (!isConflict(subSchdule)) {
+                            schedules.add(new Schedule(num++, subSchdule));
+                        }
+                    }
+                } else {
                     if (subSchdule.size() == partitionLectures.size()) {
                         schedules.add(new Schedule(num++, subSchdule));
                     }
-                } else {
-//                    if (subSchdule.size() == partitionLectures.size()) {
-//                        schedules.add(new Schedule(num++, subSchdule));
-//                    }
                     subSchdule = new ArrayList<>();
                     subSchdule.add(listClasses[i]);
                 }
             }
         }
 
+    }
 
+    private List<Sections> addingDiscussion(List<Sections> subSchedule){
+        Log.i("In adding Schduele", "------" + lectureToDiscussion.size());
+        if (lectureToDiscussion.size() == 0) return subSchedule;
 
+        List<Sections> copyOfSubSchedule = new ArrayList<>();
+        copyOfSubSchedule.addAll(subSchedule);
 
+        for (Sections section : subSchedule){
+            if (lectureToDiscussion.containsKey(section.getSectionID())){
+                copyOfSubSchedule.add(lectureToDiscussion.get(section.getSectionID()));
+                Log.i(LOG_TAG, "in add discussion");
 
+            }
+        }
+        //subSchedule = new ArrayList<>(copyOfSubSchedule);
+        return copyOfSubSchedule;
+    }
 
+    private boolean isConflict(List<Sections> subSchedule){
+        boolean answer = false;
+        for (int i = 0; i < subSchedule.size() - 1 ; i++){
+            for(int j = i +1; j< subSchedule.size(); j++){
+//                Log.i(LOG_TAG, "Compare " + subSchedule.get(i).toString() + "  with  "+ subSchedule.get(j).toString());
+//                Log.i(LOG_TAG, "Compare " + ( subSchedule.get(i).getStartTime().compareTo(subSchedule.get(j).getStartTime())== 0));
+
+                answer = answer ||
+                        (subSchedule.get(i).getStartTime().compareTo((subSchedule.get(j).getStartTime())) == 0);
+            }
+        }
+//        Log.i(LOG_TAG, "Answer is " + answer);
+        return answer;
     }
 
 }

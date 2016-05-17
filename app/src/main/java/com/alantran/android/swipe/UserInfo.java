@@ -7,15 +7,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 
 public class UserInfo extends AppCompatActivity {
     private AutoCompleteTextView mEmailView;
-    private EditText status ;
-    private EditText major ;
-    private EditText time ;
+    private AutoCompleteTextView status ;
+    private AutoCompleteTextView major ;
+    private AutoCompleteTextView time ;
 
 //    @Override
 //    public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -27,6 +27,12 @@ public class UserInfo extends AppCompatActivity {
 //        super.onSaveInstanceState(savedInstanceState);
 //    }
 
+    private static final String[] STATUSES = new String[] {
+            "Freshman", "Sophomore", "Junior", "Senior"
+    };
+    private static final String[] MAJORS = new String[] {
+            "CMSC", "PHYS", "MATH", "STAT"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +45,20 @@ public class UserInfo extends AppCompatActivity {
 
             Log.i("USERINFO", "onCreate() savedInstanceState is not null");
             mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-            mEmailView.setText(preferences.getString("Email",null));
+            mEmailView.setText(preferences.getString("Email", null));
 
 
-            status = (EditText) findViewById(R.id.status);
-            status.setText(preferences.getString("Status",null));
-            major = (EditText) findViewById(R.id.major);
+//            status = (AutoCompleteTextView) findViewById(R.id.status);
+//            status.setText(preferences.getString("Status", null));
+//            status.setAdapter(new ArrayAdapter<String>(this,
+//                    android.R.layout.simple_dropdown_item_1line, STATUSES));
+
+            major = (AutoCompleteTextView) findViewById(R.id.major);
             major.setText(preferences.getString("Major",null));
-            time = (EditText) findViewById(R.id.time);
+            major.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, MAJORS));
+
+            time = (AutoCompleteTextView) findViewById(R.id.time);
             time.setText(preferences.getString("Time",null));
 
 
@@ -59,7 +71,7 @@ public class UserInfo extends AppCompatActivity {
                 SharedPreferences settings = getSharedPreferences("UserInfo", 0);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putString("Email", mEmailView.getText().toString());
-                editor.putString("Status", status.getText().toString());
+//                editor.putString("Status", status.getText().toString());
                 editor.putString("Major", major.getText().toString());
                 editor.putString("Time", time.getText().toString());
 
@@ -83,7 +95,7 @@ public class UserInfo extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.putString("Email", mEmailView.getText().toString());
-        editor.putString("Status", status.getText().toString());
+//        editor.putString("Status", status.getText().toString());
         editor.putString("Major", major.getText().toString());
         editor.putString("Time", time.getText().toString());
 
