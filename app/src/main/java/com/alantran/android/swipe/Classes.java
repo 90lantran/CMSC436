@@ -1,117 +1,51 @@
 package com.alantran.android.swipe;
 
-/**
- * Created by alantran on 4/15/16.
- */
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Classes implements Parcelable {
+/**
+ * Created by alantran on 5/1/16.
+ */
+public class Classes implements Parcelable{
     private String courseID;
     private String name;
     private String description;
-    private String startTime;
-    private String endTime;
     private String instructor;
-    private String days;
-    private String building;
-    private String room;
-    private String classtype;
-    private Date startTimeSimple;
-    private Date endTimeSimple;
-    private Integer color = -1;
+    private String credit;
+    private List<Sections> sectionsList = new ArrayList<>();
 
-    public Classes(String courseID, String name, String description) {
-        this.courseID = courseID;
-        this.name = name;
-        this.description = description;
-    }
-
-    public Classes() {
+    public Classes(){
 
     }
 
-    public Date getEndTimeSimple() {
-        return endTimeSimple;
+
+    @Override
+    public String toString() {
+        return "Classes{" +
+                "courseID='" + courseID + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", instructor='" + instructor + '\'' +
+                ", sectionsList=" + sectionsList +
+                '}';
     }
 
-    public void setEndTimeSimple(Date endTimeSimple) {
-        this.endTimeSimple = endTimeSimple;
+    public List<Sections> getSectionsList() {
+        return sectionsList;
     }
 
-    public Date getStartTimeSimple() {
-        return startTimeSimple;
+    public void setSectionsList(List<Sections> sectionsList) {
+        this.sectionsList = sectionsList;
     }
 
-    public void setStartTimeSimple(Date startTimeSimple) {
-        this.startTimeSimple = startTimeSimple;
+    public String getCredit() {
+        return credit;
     }
-
-    public String getDays() {
-        return days;
-    }
-
-    public Integer getColor() {
-        return color;
-    }
-
-    public void setColor(Integer color) {
-        this.color = color;
-    }
-
-    public void setDays(String days) {
-        this.days = days;
-    }
-
-    public String getInstructor() {
-        return instructor;
-    }
-
-    public void setInstructor(String instructor) {
-        this.instructor = instructor;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getRoom() {
-        return room;
-    }
-
-    public void setRoom(String room) {
-        this.room = room;
-    }
-
-    public String getClasstype() {
-        return classtype;
-    }
-
-    public void setClasstype(String classtype) {
-        this.classtype = classtype;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
+    public void setCredit(String credit) {
+        this.credit = credit;
     }
 
     public String getDescription() {
@@ -122,14 +56,6 @@ public class Classes implements Parcelable {
         this.description = description;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getCourseID() {
         return courseID;
     }
@@ -138,40 +64,43 @@ public class Classes implements Parcelable {
         this.courseID = courseID;
     }
 
-    @Override
-    public String toString() {
-        return "Classes{" +
-                "courseID ='" + courseID + '\'' +
-                ", name ='" + name + '\'' +
-                ", startTimeSimple = " + startTimeSimple +
-                ", endTimeSimple = " + endTimeSimple +
-                ", color = " + color +
-                '}';
+    public String getName() {
+        return name;
     }
 
-    public int overLaps(Classes other) {
-        return this.getEndTimeSimple().compareTo(other.getStartTimeSimple());
+    public void setName(String name) {
+        this.name = name;
     }
 
+    public String getInstructor() {
+        return instructor;
+    }
 
-    // Parcelable part.
+    public void setInstructor(String instructor) {
+        this.instructor = instructor;
+    }
 
-    private Classes(Parcel in) {
+    // Parcelable
+    protected Classes(Parcel in) {
         courseID = in.readString();
         name = in.readString();
         description = in.readString();
-        startTime = in.readString();
-        endTime = in.readString();
         instructor = in.readString();
-        days = in.readString();
-        building = in.readString();
-        room = in.readString();
-        classtype = in.readString();
-        color = in.readInt();
-        //private Date startTimeSimple ;
-        //private Date endTimeSimple;
-
+        credit = in.readString();
+        sectionsList = in.createTypedArrayList(Sections.CREATOR);
     }
+
+    public static final Creator<Classes> CREATOR = new Creator<Classes>() {
+        @Override
+        public Classes createFromParcel(Parcel in) {
+            return new Classes(in);
+        }
+
+        @Override
+        public Classes[] newArray(int size) {
+            return new Classes[size];
+        }
+    };
 
     @Override
     public int describeContents() {
@@ -183,24 +112,8 @@ public class Classes implements Parcelable {
         dest.writeString(courseID);
         dest.writeString(name);
         dest.writeString(description);
-        dest.writeString(startTime);
-        dest.writeString(endTime);
         dest.writeString(instructor);
-        dest.writeString(days);
-        dest.writeString(building);
-        dest.writeString(room);
-        dest.writeString(classtype);
-        dest.writeInt(color);
+        dest.writeString(credit);
+        dest.writeTypedList(sectionsList);
     }
-
-    public static final Parcelable.Creator<Classes> CREATOR = new Parcelable.Creator<Classes>() {
-        public Classes createFromParcel(Parcel in) {
-            return new Classes(in);
-        }
-
-        public Classes[] newArray(int size) {
-            return new Classes[size];
-
-        }
-    };
 }
