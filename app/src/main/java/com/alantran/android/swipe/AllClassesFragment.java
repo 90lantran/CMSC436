@@ -1,6 +1,5 @@
 package com.alantran.android.swipe;
 
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,8 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.alantran.android.swipe.com.alantran.android.swipe.objects.Classes;
-import com.alantran.android.swipe.com.alantran.android.swipe.objects.Section;
+import com.alantran.android.swipe.objects.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,23 +33,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class AllClassesFragment extends Fragment {
-
     String LOG_TAG = AllClassesFragment.class.getSimpleName();
-
     OnPickButtonClick mCallback;
-
     ArrayList<Classes> classes = new ArrayList<>();
     Map<String, String> descriptions = new LinkedHashMap<>();
     Map<String, String> classNames = new HashMap<>();
-
+    String query;
 
     public AllClassesFragment() {
-        // Required empty public constructor
+
     }
 
     public interface OnPickButtonClick {
@@ -77,14 +68,35 @@ public class AllClassesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_display_classes, container, false);
 
+        query = ((MainActivity) getActivity()).getQuery();
+        if (savedInstanceState != null) {
+            query = savedInstanceState.getString("query");
+        }
         FetchClassesTask task = new FetchClassesTask();
-        task.execute("CMSC");
+        task.execute(query);
         return rootView;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putString(query, "query");
+    }
+
+    // User typed something into the search bar, time to reload the data
+    public void resetData() {
+        query = ((MainActivity) getActivity()).getQuery();
+        classes.clear();
+        descriptions.clear();
+        classNames.clear();
+        FetchClassesTask task = new FetchClassesTask();
+        task.execute(query);
+        RecyclerView v = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
+        v.getAdapter().notifyDataSetChanged();
+    }
 
     public class ClassesRecyclerViewAdapter extends RecyclerView.Adapter<ClassesRecyclerViewAdapter.ViewHolder> {
-
         List<Boolean> expandableItem;
 
         public ClassesRecyclerViewAdapter() {
@@ -96,7 +108,6 @@ public class AllClassesFragment extends Fragment {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
             View view = LayoutInflater.from(parent.getContext()).
                     inflate(R.layout.allclasses_recycler_view_item, parent, false);
 
@@ -106,9 +117,8 @@ public class AllClassesFragment extends Fragment {
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             final Classes currentClass = classes.get(position);
-            holder.getDescription().setText(currentClass.getDescription());
+            holder.getDescription().setText("vsdfvsdf");
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
-
             holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
             // TODO: finish this
             //holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
@@ -213,11 +223,20 @@ public class AllClassesFragment extends Fragment {
             String classJsonStr = null;
             try {
                 String CLASS_BASE_URL = "http://api.umd.io/v0/courses?";
+                String SINGLE_CLASS_BASE_URL = "http://api.umd.io/v0/courses/";
                 String DEPTID = "dept_id";
+                String PERPAGE = "per_page";
+                Integer page = 100;
 
                 Uri builtUri = Uri.parse(CLASS_BASE_URL).buildUpon()
                         .appendQueryParameter(DEPTID, params[0])
+                        .appendQueryParameter(PERPAGE, page.toString())
                         .build();
+                if (params[0].length() > 4) {
+                    builtUri = Uri.parse(SINGLE_CLASS_BASE_URL).buildUpon()
+                            .appendPath(params[0])
+                            .build();
+                }
 
                 URL url = new URL(builtUri.toString());
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -277,24 +296,37 @@ public class AllClassesFragment extends Fragment {
                 classArray = new JSONArray(classJsonStr);
             } catch (JSONException e) {
                 e.printStackTrace();
+            } catch (NullPointerException e) {
+                // TODO: what to do?
+                return;
             }
 
-            for (int i = 0; i < classArray.length(); i++) {
-                Log.e(LOG_TAG, "In populating maps");
+            if (classArray == null) {
                 JSONObject klass = null;
                 try {
-                    klass = classArray.getJSONObject(i);
-                    Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION) );
+                    klass = new JSONObject(classJsonStr);
                     descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
                     classNames.put(klass.getString(COURSEID), klass.getString(NAME));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
+            } else {
+                for (int i = 0; i < classArray.length(); i++) {
+                    Log.e(LOG_TAG, "In populating maps");
+                    JSONObject klass = null;
+                    try {
+                        klass = classArray.getJSONObject(i);
+                        Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION));
+                        descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
+                        classNames.put(klass.getString(COURSEID), klass.getString(NAME));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             Set<String> temp = descriptions.keySet();
-            new  FetchSectionsTask().execute( descriptions.keySet().toArray(new String[descriptions.keySet().size()]));
+            new FetchSectionsTask().execute( descriptions.keySet().toArray(new String[descriptions.keySet().size()]));
         }
 
         public class FetchSectionsTask extends AsyncTask<String, Void, Classes[]> {
@@ -423,6 +455,5 @@ public class AllClassesFragment extends Fragment {
 
             }
         }
-
     }
 }

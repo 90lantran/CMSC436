@@ -1,16 +1,18 @@
 package com.alantran.android.swipe;
 
-
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -18,31 +20,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.alantran.android.swipe.com.alantran.android.swipe.objects.Classes;
+import com.alantran.android.swipe.objects.Classes;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements AllClassesFragment.OnPickButtonClick {
     String LOG_TAG = MainActivity.class.getSimpleName();
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
+    private String query = "CMSC";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        handleIntent(getIntent());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -65,7 +57,26 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(mViewPager);
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            this.query = query;
+
+            AllClassesFragment f = (AllClassesFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 0);
+            f.resetData();
+        }
+    }
+
+    public String getQuery() {
+        return query;
     }
 
     private void createSchedules(View view) {
@@ -75,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         ArrayList<Classes> classes = new ArrayList<Classes>(); // list of classes to send over
         // This feels like an extremely ugly get around
         // Get each class from the adapter and put it into this arraylist
-        for (int i = 0; i < f.getArrayAdapter().getCount(); i++) {
-            classes.add(f.getArrayAdapter().getItem(i));
+        for (Classes c : f.getSelectedClasses()) {
+            classes.add(c);
         }
 
         buildSchedules.putParcelableArrayListExtra("classes", classes);
@@ -89,6 +100,14 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(new ComponentName(getApplicationContext(), MainActivity.class)));
+
         return true;
     }
 
@@ -116,12 +135,12 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
             if (f.getArrayAdapter() == null) Log.e(LOG_TAG, "mClassAdapter is null");
             if (f.onAddingItemToList(currentClass)){
                 // Make a toast
-                CharSequence text = "Added " + currentClass.getCourseID() + "to the list of classes for next semester";
+                CharSequence text = "Added " + currentClass.getCourseID();
 
                 Toast toast = Toast.makeText(getApplicationContext(),text, Toast.LENGTH_SHORT);
                 toast.show();
             } else {
-                CharSequence text = "This class is already in the list of classes for next semester";
+                CharSequence text = currentClass.getCourseID() + " already added!";
 
                 Toast toast = Toast.makeText(getApplicationContext(),text, Toast.LENGTH_SHORT);
                 toast.show();
@@ -129,11 +148,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         }
     }
 
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
     public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -149,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
                 case 0:
                     fragment = new AllClassesFragment();
                     break;
-
                 case 1:
                     fragment = new WantToTakeFragment();
                     break;
@@ -159,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
         @Override
         public int getCount() {
-            // Show 2 total pages.
             return 2;
         }
 
@@ -169,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
                 case 0:
                     return "ALL CLASSES";
                 case 1:
-                    return "PICK";
+                    return "PICKED CLASSES";
             }
             return null;
         }
