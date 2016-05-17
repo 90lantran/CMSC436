@@ -3,6 +3,7 @@ package com.alantran.android.swipe.objects;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,10 +15,13 @@ import java.util.Map;
 
 // Making some changes to this class: making parcelable and
 // adding sections so there aren't multiple copies of one class
-public class Classes implements Parcelable {
+public class Classes implements Parcelable, Serializable {
     private String courseID;
     private String name;
     private String description;
+    private int credits;
+    private String core;
+    private String genEd;
     private HashMap<String, String> instructors; // section id -> instructor
     private HashMap<String, ArrayList<Section>> sections; // section id -> sections (lecture, lab, discussion, etc.)
 
@@ -26,10 +30,13 @@ public class Classes implements Parcelable {
         sections = new HashMap<String, ArrayList<Section>>();
     }
 
-    public Classes(String courseID, String name, String description) {
+    public Classes(String courseID, String name, String description, int credits, String core, String genEd) {
         this.courseID = courseID;
         this.name = name;
         this.description = description;
+        this.credits = credits;
+        this.core = core;
+        this.genEd = genEd;
         instructors = new HashMap<String, String>();
         sections = new HashMap<String, ArrayList<Section>>();
     }
@@ -52,6 +59,30 @@ public class Classes implements Parcelable {
 
     public String getCourseID() {
         return courseID;
+    }
+
+    public int getCredits() {
+        return credits;
+    }
+
+    public String getCore() {
+        return core;
+    }
+
+    public String getGenEd() {
+        return genEd;
+    }
+
+    public void setCredits(int credits) {
+        this.credits = credits;
+    }
+
+    public void setCore(String core) {
+        this.core = core;
+    }
+
+    public void setGenEd(String genEd) {
+        this.genEd = genEd;
     }
 
     public HashMap<String, ArrayList<Section>> getSections() {
@@ -78,14 +109,32 @@ public class Classes implements Parcelable {
         if (instructors.size() == 0) {
             return "TBA";
         }
+
+        ArrayList<String> allInstructors = new ArrayList<>();
+        for (String s : instructors.keySet()) {
+            String i = instructors.get(s);
+            if (i.startsWith("Instructor: ")) {
+                i = i.substring(12, i.length());
+            }
+            if (!allInstructors.contains(i)) {
+                allInstructors.add(i);
+            }
+        }
+
         StringBuilder s = new StringBuilder();
-        return instructors.get(instructors.keySet().toArray()[0]);
+
+        for (String i : allInstructors) {
+            s.append(i + ", ");
+        }
+        s.setLength(s.length() - 2);
+        return s.toString();
     }
 
     private Classes(Parcel in) {
         courseID = in.readString();
         name = in.readString();
         description = in.readString();
+        credits = in.readInt();
 
         // Recreate instructors hashmap
         int size = in.readInt();
@@ -114,6 +163,7 @@ public class Classes implements Parcelable {
         out.writeString(courseID);
         out.writeString(name);
         out.writeString(description);
+        out.writeInt(credits);
 
         // Write instructors to parcel
         out.writeInt(instructors.size());

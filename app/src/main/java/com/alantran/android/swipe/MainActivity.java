@@ -84,16 +84,12 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
 
         ArrayList<Classes> classes = new ArrayList<Classes>(); // list of classes to send over
-        // This feels like an extremely ugly get around
-        // Get each class from the adapter and put it into this arraylist
         for (Classes c : f.getSelectedClasses()) {
             classes.add(c);
         }
 
         buildSchedules.putParcelableArrayListExtra("classes", classes);
         startActivity(buildSchedules);
-        //Snackbar.make(view, f.getArrayAdapter().getItem(0), Snackbar.LENGTH_LONG)
-                //.setAction("Action", null).show();
     }
 
     @Override
@@ -113,9 +109,6 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
