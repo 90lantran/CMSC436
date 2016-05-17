@@ -49,15 +49,10 @@
                 android:textStyle="bold"
                 android:padding="8dp"/>
             <TextView
-                android:id="@+id/location_textview"
+                android:id="@+id/details_textview"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"/>
-            <TextView
-                android:id="@+id/time_textview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"

@@ -3,6 +3,7 @@ package com.alantran.android.swipe.objects;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Created by Danny on 4/23/2016.
  */
-public class Section implements Parcelable {
+public class Section implements Parcelable, Serializable {
     private String sectionId;
     private String name;
     private String description;
@@ -25,6 +26,7 @@ public class Section implements Parcelable {
     private String building;
     private String room;
     private String classtype;
+    private String openSeats;
 
     private HashMap<GregorianCalendar, GregorianCalendar> times;
 
@@ -69,11 +71,22 @@ public class Section implements Parcelable {
     }
 
     public String getClasstype() {
+        if (classtype.equals("")) {
+            return "Lecture";
+        }
         return classtype;
     }
 
     public void setClasstype(String classtype) {
         this.classtype = classtype;
+    }
+
+    public String getOpenSeats() {
+        return openSeats;
+    }
+
+    public void setOpenSeats(String seats) {
+        openSeats = seats;
     }
 
     public String getEndTime() {
@@ -175,6 +188,7 @@ public class Section implements Parcelable {
         building = in.readString();
         room = in.readString();
         classtype = in.readString();
+        openSeats = in.readString();
 
         int size = in.readInt();
         times = new HashMap<GregorianCalendar, GregorianCalendar>();
@@ -200,6 +214,7 @@ public class Section implements Parcelable {
         out.writeString(building);
         out.writeString(room);
         out.writeString(classtype);
+        out.writeString(openSeats);
 
         out.writeInt(times.size());
         for (Map.Entry<GregorianCalendar, GregorianCalendar> entry : times.entrySet()) {

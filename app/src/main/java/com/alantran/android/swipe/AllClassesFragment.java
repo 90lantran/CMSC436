@@ -1,11 +1,14 @@
 package com.alantran.android.swipe;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +16,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.alantran.android.swipe.objects.*;
+import com.alantran.android.swipe.objects.Classes;
+
+import com.alantran.android.swipe.objects.Section;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +46,9 @@ public class AllClassesFragment extends Fragment {
     ArrayList<Classes> classes = new ArrayList<>();
     Map<String, String> descriptions = new LinkedHashMap<>();
     Map<String, String> classNames = new HashMap<>();
+    Map<String, Integer> classCredits = new HashMap<>();
+    Map<String, String> classCore = new HashMap<>();
+    Map<String, String> classGenEd = new HashMap<>();
     String query;
 
     public AllClassesFragment() {
@@ -68,7 +78,13 @@ public class AllClassesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_display_classes, container, false);
 
-        query = ((MainActivity) getActivity()).getQuery();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String q = preferences.getString("query", "");
+        if(!q.equalsIgnoreCase("") && (q.length() == 4 || q.length() == 7 || q.length() == 8)) {
+            query = q;
+        } else {
+            query = ((MainActivity) getActivity()).getQuery();
+        }
         if (savedInstanceState != null) {
             query = savedInstanceState.getString("query");
         }
@@ -78,10 +94,12 @@ public class AllClassesFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putString(query, "query");
+    public void onPause() {
+        super.onPause();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("query", query);
+        editor.apply();
     }
 
     // User typed something into the search bar, time to reload the data
@@ -90,6 +108,9 @@ public class AllClassesFragment extends Fragment {
         classes.clear();
         descriptions.clear();
         classNames.clear();
+        classCredits.clear();
+        classCore.clear();
+        classGenEd.clear();
         FetchClassesTask task = new FetchClassesTask();
         task.execute(query);
         RecyclerView v = (RecyclerView) getActivity().findViewById(R.id.allclasses_recycler_view);
@@ -114,23 +135,89 @@ public class AllClassesFragment extends Fragment {
             return new ViewHolder(view);
         }
 
+        private String genEd(String str) {
+            switch (str) {
+                case "FSAW":
+                    break;
+            }
+            return null;
+        }
+
         @Override
         public void onBindViewHolder(final ViewHolder holder, final int position) {
             final Classes currentClass = classes.get(position);
-            holder.getDescription().setText("vsdfvsdf");
             holder.getName().setText(currentClass.getCourseID() + ": " + currentClass.getName());
-            holder.getInstructor().setText("Instructor: " + currentClass.getInstructor());
-            // TODO: finish this
-            //holder.getLocation().setText("Building " + currentClass.getBuilding() + ". Room " + currentClass.getRoom());
-            //holder.getTime().setText("Time: " + currentClass.getDays()+ "  " + currentClass.getStartTime()+ " - " + currentClass.getEndTime());
+
+            // Print out instructors and credits
+            StringBuilder s = new StringBuilder();
+            s.append("Instructor(s): " + currentClass.getInstructor());
+            s.append("\nCredits: " + currentClass.getCredits());
+
+            try {
+                JSONArray core = new JSONArray(currentClass.getCore());
+                s.append("\nCore: ");
+                for (int i = 0; i < core.length() - 1; i++) {
+                    s.append(core.get(i) + ", ");
+                }
+                s.append(core.get(core.length() - 1));
+            } catch (Exception e) {
+                // do nothing
+            }
+            try {
+                JSONArray genEd = new JSONArray(currentClass.getGenEd());
+                s.append("\nGen Ed: ");
+                for (int i = 0; i < genEd.length() - 1; i++) {
+                    s.append(genEd.get(i) + ", ");
+                }
+                s.append(genEd.get(genEd.length() - 1));
+            } catch (Exception e) {
+                // do nothing
+            }
+            holder.getInstructor().setText(s.toString());
+
+            // Print out description
+            String description = currentClass.getDescription();
+            description = description.replaceAll("\\.(\\D)", ".\n$1");
+            description = description.replaceAll("\\s\\s", "\n");
+            holder.getDetails().setText(description);
+
+            // Print out section data
+            s = new StringBuilder();
+            HashMap<String, ArrayList<Section>> sections = currentClass.getSections();
+
+            ArrayList<String> keys = new ArrayList<String>();
+            for (String str : sections.keySet()) {
+                keys.add(str);
+            }
+            Collections.sort(keys);
+
+            for (String sectionKey : keys) {
+                ArrayList<Section> currentSections = sections.get(sectionKey);
+                Collections.sort(currentSections, new Comparator<Section>() {
+                    @Override
+                    public int compare(Section lhs, Section rhs) {
+                        return lhs.getSectionId().compareTo(rhs.getSectionId());
+                    }
+                });
+
+                if (currentSections.size() > 0) {
+                    Section firstSection = currentSections.get(0);
+                    s.append("<b>" + firstSection.getSectionId() + "</b>: " + firstSection.getInstructor() + "<br>");
+                }
+                for (Section sec : currentSections) {
+                    s.append("<b>" + sec.getClasstype() + "</b>: " + sec.getBuilding() + " " + sec.getRoom() + " "
+                             + sec.getDays() + " " + sec.getStartTime() + " - " + sec.getEndTime() + "<br>");
+                }
+                s.append("<b>Open Seats:</b> " + currentSections.get(0).getOpenSeats() + "<br><br>");
+            }
+
+            holder.getDescription().setText(Html.fromHtml(s.toString()));
 
             holder.getPickButton().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mCallback.onAddingItemToList(currentClass, "pick");
                 }
-
-
             });
             final Button expandButton = holder.getExpandButton();
             holder.getExpandButton().setOnClickListener(new View.OnClickListener() {
@@ -162,8 +249,7 @@ public class AllClassesFragment extends Fragment {
             private Button expandButton;
             private ViewGroup expandableLayout;
             private TextView instructor;
-            private TextView location;
-            private TextView time;
+            private TextView details;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -173,8 +259,7 @@ public class AllClassesFragment extends Fragment {
                 expandButton = (Button) itemView.findViewById(R.id.expand_button);
                 expandableLayout = (ViewGroup) itemView.findViewById(R.id.expandable_layout);
                 instructor = (TextView) itemView.findViewById(R.id.instructor_textview);
-                location = (TextView) itemView.findViewById(R.id.location_textview);
-                time = (TextView) itemView.findViewById(R.id.time_textview);
+                details = (TextView) itemView.findViewById(R.id.details_textview);
             }
 
             public TextView getName() {
@@ -201,11 +286,8 @@ public class AllClassesFragment extends Fragment {
                 return instructor;
             }
 
-            public TextView getLocation() {
-                return location;
-            }
-            public TextView getTime() {
-                return time;
+            public TextView getDetails() {
+                return details;
             }
         }
     }
@@ -277,7 +359,6 @@ public class AllClassesFragment extends Fragment {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
                     }
                 }
             }
@@ -290,6 +371,9 @@ public class AllClassesFragment extends Fragment {
             String COURSEID = "course_id";
             String NAME = "name";
             String DESCRIPTION = "description";
+            String CREDITS = "credits";
+            String CORE = "core";
+            String GENED = "gen_ed";
 
             JSONArray classArray = null;
             try {
@@ -297,7 +381,7 @@ public class AllClassesFragment extends Fragment {
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (NullPointerException e) {
-                // TODO: what to do?
+                // User searched for non-existent class; do nothing
                 return;
             }
 
@@ -307,6 +391,9 @@ public class AllClassesFragment extends Fragment {
                     klass = new JSONObject(classJsonStr);
                     descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
                     classNames.put(klass.getString(COURSEID), klass.getString(NAME));
+                    classCredits.put(klass.getString(COURSEID), klass.getInt(CREDITS));
+                    classCore.put(klass.getString(COURSEID), klass.getString(CORE));
+                    classGenEd.put(klass.getString(COURSEID), klass.getString(GENED));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -316,9 +403,12 @@ public class AllClassesFragment extends Fragment {
                     JSONObject klass = null;
                     try {
                         klass = classArray.getJSONObject(i);
-                        Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION));
+                        //Log.e(LOG_TAG, classArray.getJSONObject(i).getString(DESCRIPTION));
                         descriptions.put(klass.getString(COURSEID), klass.getString(DESCRIPTION));
                         classNames.put(klass.getString(COURSEID), klass.getString(NAME));
+                        classCredits.put(klass.getString(COURSEID), klass.getInt(CREDITS));
+                        classCore.put(klass.getString(COURSEID), klass.getString(CORE));
+                        classGenEd.put(klass.getString(COURSEID), klass.getString(GENED));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -342,8 +432,9 @@ public class AllClassesFragment extends Fragment {
                 String END_TIME = "end_time";
                 String BUILDING = "building";
                 String ROOM = "room";
-                String CLASSTYPE = "classtype";
+                String CLASS_TYPE = "classtype";
                 String SECTION_ID = "section_id";
+                String OPEN_SEATS = "open_seats";
 
                 JSONArray sectionArray = new JSONArray(sectionJsonStr);
 
@@ -369,9 +460,10 @@ public class AllClassesFragment extends Fragment {
                         currentSection.setEndTime(meeting.getString(END_TIME));
                         currentSection.setBuilding(meeting.getString(BUILDING));
                         currentSection.setRoom(meeting.getString(ROOM));
-                        currentSection.setClasstype(meeting.getString(CLASSTYPE));
+                        currentSection.setClasstype(meeting.getString(CLASS_TYPE));
+                        currentSection.setOpenSeats(section.getString(OPEN_SEATS));
                         currentClass.addSection(section.getString(SECTION_ID), currentSection);
-                        Log.i(LOG_TAG, currentSection.toString());
+                        //Log.i(LOG_TAG, currentSection.toString());
                     }
                 }
             }
@@ -420,6 +512,9 @@ public class AllClassesFragment extends Fragment {
                         newClass.setCourseID(params[i]);
                         newClass.setDescription(descriptions.get(params[i]));
                         newClass.setName(classNames.get(params[i]));
+                        newClass.setCredits(classCredits.get(params[i]));
+                        newClass.setCore(classCore.get(params[i]));
+                        newClass.setGenEd(classGenEd.get(params[i]));
 
                         getClassDataFromJson(buffer.toString(), newClass);
                         list.add(newClass);
