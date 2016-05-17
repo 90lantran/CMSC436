@@ -1,8 +1,10 @@
 package com.alantran.android.swipe;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -19,12 +21,18 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.alantran.android.swipe.objects.*;
 
 import org.w3c.dom.Text;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +72,10 @@ public class CreatedSchedules extends AppCompatActivity {
             RecyclerView recyclerView = (RecyclerView)findViewById(R.id.all_schedules_recycler_view);
             recyclerView.setAdapter(new SchedulesRecyclerViewAdapter());
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+            if (CreatedSchedules.this.schedules.getSchedules().size() == 0) {
+                Toast toast = Toast.makeText(getApplicationContext(), "No schedules found or incomplete", Toast.LENGTH_SHORT);
+                toast.show();
+            }
         }
 
         @Override
@@ -145,8 +157,17 @@ public class CreatedSchedules extends AppCompatActivity {
             boolean waitlist = false;
             boolean walkingDistance = false; // One day... this shall be implemented!
             boolean incomplete = false; // This too!
+            String missingCourse = new String();
+
             for (Classes c : selectedClasses) {
                 totalCredits += c.getCredits();
+            }
+
+            for (Classes c : selectedClasses) {
+                if (!schedule.keySet().contains(c.getCourseID())) {
+                    incomplete = true;
+                    missingCourse = c.getCourseID();
+                }
             }
 
             for (String key : schedule.keySet()) {
@@ -165,7 +186,7 @@ public class CreatedSchedules extends AppCompatActivity {
                 s.append("<font color='#EE0000'>*Make sure there is enough time to walk between classes!</font><br>");
             }
             if (incomplete) {
-                s.append("<font color='#EE0000'>*Incomplete schedule!</font><br>");
+                s.append("<font color='#EE0000'>*Incomplete schedule: " + missingCourse + " missing!</font><br>");
             }
 
             s.append("Total Credits: " + totalCredits + "<br>");

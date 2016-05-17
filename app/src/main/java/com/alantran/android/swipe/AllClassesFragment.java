@@ -155,21 +155,25 @@ public class AllClassesFragment extends Fragment {
 
             try {
                 JSONArray core = new JSONArray(currentClass.getCore());
-                s.append("\nCore: ");
-                for (int i = 0; i < core.length() - 1; i++) {
-                    s.append(core.get(i) + ", ");
+                if (core.length() > 0) {
+                    s.append("\nCore: ");
+                    for (int i = 0; i < core.length() - 1; i++) {
+                        s.append(core.get(i) + ", ");
+                    }
+                    s.append(core.get(core.length() - 1));
                 }
-                s.append(core.get(core.length() - 1));
             } catch (Exception e) {
                 // do nothing
             }
             try {
                 JSONArray genEd = new JSONArray(currentClass.getGenEd());
-                s.append("\nGen Ed: ");
-                for (int i = 0; i < genEd.length() - 1; i++) {
-                    s.append(genEd.get(i) + ", ");
+                if (genEd.length() > 0) {
+                    s.append("\nGen Ed: ");
+                    for (int i = 0; i < genEd.length() - 1; i++) {
+                        s.append(genEd.get(i) + ", ");
+                    }
+                    s.append(genEd.get(genEd.length() - 1));
                 }
-                s.append(genEd.get(genEd.length() - 1));
             } catch (Exception e) {
                 // do nothing
             }
@@ -179,7 +183,10 @@ public class AllClassesFragment extends Fragment {
             String description = currentClass.getDescription();
             description = description.replaceAll("\\.(\\D)", ".\n$1");
             description = description.replaceAll("\\s\\s", "\n");
-            holder.getDetails().setText(description);
+            description = description.replaceAll("Prerequisite:", "<b>Prerequisite</b>");
+            description = description.replaceAll("Corequisite:", "<b>Corequisite</b>");
+            description = description.replaceAll("Recommended:", "<b>Recommended</b>");
+            holder.getDetails().setText(Html.fromHtml(description));
 
             // Print out section data
             s = new StringBuilder();

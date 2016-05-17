@@ -83,13 +83,18 @@ public class MainActivity extends AppCompatActivity implements AllClassesFragmen
         Intent buildSchedules = new Intent(getBaseContext(), CreatedSchedules.class);
         WantToTakeFragment f = (WantToTakeFragment) mSectionsPagerAdapter.instantiateItem(mViewPager, 1);
 
-        ArrayList<Classes> classes = new ArrayList<Classes>(); // list of classes to send over
-        for (Classes c : f.getSelectedClasses()) {
-            classes.add(c);
-        }
+        if (f.getSelectedClasses().size() == 0) {
+            Toast toast = Toast.makeText(getApplicationContext(), "No classes selected", Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            ArrayList<Classes> classes = new ArrayList<Classes>(); // list of classes to send over
+            for (Classes c : f.getSelectedClasses()) {
+                classes.add(c);
+            }
 
-        buildSchedules.putParcelableArrayListExtra("classes", classes);
-        startActivity(buildSchedules);
+            buildSchedules.putParcelableArrayListExtra("classes", classes);
+            startActivity(buildSchedules);
+        }
     }
 
     @Override

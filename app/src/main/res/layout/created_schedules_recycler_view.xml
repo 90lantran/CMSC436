@@ -56,7 +56,7 @@ android:orientation="vertical">
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MORE"
+                android:text="SECTIONS"
                 android:background="#00000000"
                 android:textColor="#9CCC65"
                 android:id="@+id/created_schedules_more_button"

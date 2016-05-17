@@ -70,7 +70,7 @@
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="More"
+                    android:text="SECTIONS"
                     android:id="@+id/expand_button"
                     android:textColor="#9CCC65"
                     android:background="#00000000"

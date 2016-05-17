@@ -1,5 +1,6 @@
 package com.alantran.android.swipe.objects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -43,6 +44,15 @@ public class Schedule {
 
     private void buildSchedules(ArrayList<Classes> classes) {
         build(classes, new HashMap<String, ArrayList<Section>>(), 0);
+        if (schedules.size() == 0) { // No schedules found
+            int removalIndex = 0;
+            while (removalIndex < classes.size()) {
+                ArrayList<Classes> selection = new ArrayList<Classes>(classes);
+                selection.remove(removalIndex);
+                build(selection, new HashMap<String, ArrayList<Section>>(), 0);
+                removalIndex++;
+            }
+        }
     }
 
     // Checks if a schedule has a conflict
