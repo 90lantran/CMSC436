@@ -42,17 +42,17 @@ public class CreatedSchedules extends AppCompatActivity {
         task.execute();
     }
 
-    public class CreateSchedulesTask extends AsyncTask<String, Void, String> {
+    public class CreateSchedulesTask extends AsyncTask<String, Void, Void> {
         @Override
-        protected String doInBackground(String... params) {
+        protected Void doInBackground(String... params) {
             selectedClasses = getIntent().getParcelableArrayListExtra("classes");
             getIntent().getParcelableArrayListExtra("classes");
             schedules = new Schedule(selectedClasses);
-            return "";
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String str) {
+        protected void onPostExecute(Void v) {
             RecyclerView recyclerView = (RecyclerView)findViewById(R.id.all_schedules_recycler_view);
             recyclerView.setAdapter(new SchedulesRecyclerViewAdapter());
             findViewById(R.id.loadingPanel).setVisibility(View.GONE);
@@ -63,10 +63,7 @@ public class CreatedSchedules extends AppCompatActivity {
             findViewById(R.id.loadingPanel).setVisibility(View.VISIBLE);
         }
 
-        @Override
-        protected void onProgressUpdate(Void... values) {
 
-        }
     }
 
     // Start email app to send schedule details
